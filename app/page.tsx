@@ -6,7 +6,8 @@ import {
   useEdgesState,
   addEdge,
   Background,
-  Controls
+  Controls,
+  MarkerType
 } from '@xyflow/react';
  
 import '@xyflow/react/dist/style.css';
@@ -18,10 +19,10 @@ const initialNodes = [
   { id: '4', position: {x:100, y: 200}, data: {label: 'D'}} // same as the first
 ];
 const initialEdges = [
-  { id: 'e1-2', source: '1', target: '2' }, 
-  {id: 'e1-3', source:'1', target: '3'},
-  {id: '2-4', source:'2', target: '4'},
-  {id: '3-4', source:'3', target: '4'}
+  { id: 'e1-2', source: '1', target: '2', markerEnd: {type: MarkerType.Arrow}, type: 'straight' }, 
+  {id: 'e1-3', source:'1', target: '3', markerEnd: {type: MarkerType.Arrow}},
+  {id: '2-4', source:'2', target: '4', markerEnd: {type: MarkerType.Arrow}},
+  {id: '3-4', source:'3', target: '4', markerEnd: {type: MarkerType.Arrow}}
 ];
  
 export default function Home() {
