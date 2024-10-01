@@ -7,3 +7,8 @@ export interface GraphViewProps {
   onEdgesChange: (changes: any) => void;
   onConnect: OnConnect;
 }
+
+export interface FlowViewProps {
+  toggleEditor(): void;
+  isShown: boolean;
+}
