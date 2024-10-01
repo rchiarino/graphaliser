@@ -7,10 +7,9 @@ import GraphView from "./components/GraphView";
 import { FlowViewProps, GraphViewProps } from "./utils/types";
 import { defaultGraph } from "./utils/flowConfig";
 import EditorView from "./components/EditorView";
-import { useMonaco } from "@monaco-editor/react";
+import { defaultValue } from "./utils/editorConfig";
 
 export default function Home() {
-  const monaco = useMonaco();
   const [nodes, setNodes, onNodesChange] = useNodesState(
     defaultGraph.initialNodes
   );
@@ -44,13 +43,15 @@ export default function Home() {
 
   return (
     <main>
-      <section className="w-screen h-screen flex flex-row items-start">
+      <section className="w-screen h-screen grid grid-cols-3">
         {editorVisible && (
-          <div className="flex w-screen h-screen bg-[#141414]">
-            <EditorView value="//Something on js" onChange={() => {}} />
+          <div className="h-screen bg-[#141414]">
+            <EditorView value={defaultValue} onChange={() => {}} />
           </div>
         )}
-        <GraphView graph={graphConfig} view={flowConfig} />
+        <div className={editorVisible ? "col-span-2" : "col-span-full"}>
+          <GraphView graph={graphConfig} view={flowConfig} />
+        </div>
       </section>
     </main>
   );
