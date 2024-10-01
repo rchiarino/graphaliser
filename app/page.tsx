@@ -46,7 +46,7 @@ export default function Home() {
     <main>
       <section className="w-screen h-screen flex flex-row items-start">
         {editorVisible && (
-          <div className="flex w-full h-screen">
+          <div className="flex w-screen h-screen bg-[#141414]">
             <EditorView value="//Something on js" onChange={() => {}} />
           </div>
         )}

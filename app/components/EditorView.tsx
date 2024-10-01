@@ -19,6 +19,12 @@ function EditorView({ value, onChange }: EditorViewProps) {
       theme="vs-dark"
       value={value}
       onChange={onChange}
+      options={{
+        minimap: { enabled: false },
+        smoothScrolling: true,
+        cursorSmoothCaretAnimation: "on",
+        scrollBeyondLastLine: true,
+      }}
     />
   );
 }
