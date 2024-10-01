@@ -1,6 +1,7 @@
 "use client";
 import React, { useCallback, useState } from "react";
 import { useNodesState, useEdgesState, addEdge } from "@xyflow/react";
+import { useDebounce, useLocalStorage } from "react-use";
 
 import "@xyflow/react/dist/style.css";
 import GraphView from "./components/GraphView";
@@ -19,6 +20,13 @@ export default function Home() {
 
   const [editorVisible, setEditorVisible] = useState(true);
 
+  const [storedEditorValue, setStoredEditorValue] = useLocalStorage(
+    "editor.value",
+    defaultValue
+  );
+
+  const [code, setText] = useState(storedEditorValue!);
+
   const onConnect = useCallback(
     (params: any) => setEdges((eds: any) => addEdge(params, eds)),
     [setEdges]
@@ -27,6 +35,13 @@ export default function Home() {
   const toggleEditor = () => {
     setEditorVisible((state) => !state);
   };
+
+  const processCode = async () => {
+    setStoredEditorValue(code);
+    alert("Processing code");
+  };
+
+  useDebounce(processCode, 1000, [code]);
 
   const graphConfig: GraphViewProps = {
     nodes: nodes,
@@ -46,7 +61,12 @@ export default function Home() {
       <section className="w-screen h-screen grid grid-cols-3">
         {editorVisible && (
           <div className="h-screen bg-[#141414]">
-            <EditorView value={defaultValue} onChange={() => {}} />
+            <EditorView
+              value={code}
+              onChange={(value) => {
+                setText(value!);
+              }}
+            />
           </div>
         )}
         <div className={editorVisible ? "col-span-2" : "col-span-full"}>
