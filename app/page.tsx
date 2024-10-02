@@ -9,7 +9,8 @@ import { FlowViewProps, GraphViewProps } from "./utils/types";
 import { defaultGraph } from "./utils/flowConfig";
 import EditorView from "./components/EditorView";
 import { defaultValue } from "./utils/editorConfig";
-import processPseudoCode from "./utils/editorToFlow";
+// import processPseudoCode from "./utils/editorToFlow";
+import {graph} from "./utils/astParser";
 
 export default function Home() {
   const [nodes, setNodes, onNodesChange] = useNodesState(
@@ -39,8 +40,9 @@ export default function Home() {
 
   const processCode = async () => {
     setStoredEditorValue(code);
-    let { nodes, edges } = processPseudoCode(code);
-    console.log(nodes, edges);
+    // let { nodes, edges } = processPseudoCode(code);
+    graph.display();
+    // console.log(nodes, edges);
   };
 
   useDebounce(processCode, 1000, [code]);
