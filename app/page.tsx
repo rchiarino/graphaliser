@@ -10,7 +10,7 @@ import { defaultGraph } from "./utils/flowConfig";
 import EditorView from "./components/EditorView";
 import { defaultValue } from "./utils/editorConfig";
 // import processPseudoCode from "./utils/editorToFlow";
-import {graph} from "./utils/astParser";
+// import {graph} from "./utils/astParser";
 
 export default function Home() {
   const [nodes, setNodes, onNodesChange] = useNodesState(
@@ -41,7 +41,7 @@ export default function Home() {
   const processCode = async () => {
     setStoredEditorValue(code);
     // let { nodes, edges } = processPseudoCode(code);
-    graph.display();
+    // graph.display();
     // console.log(nodes, edges);
   };
 

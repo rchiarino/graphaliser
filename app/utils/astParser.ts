@@ -1,116 +1,95 @@
 class ASTNode {
-    nodeType: string;
-    children: ASTNode[];
+  nodeType: string;
+  children: ASTNode[];
 
-    constructor(nodeType: string, children: ASTNode[] = []) {
-        this.nodeType = nodeType;
-        this.children = children;
-    }
+  constructor(nodeType: string, children: ASTNode[] = []) {
+    this.nodeType = nodeType;
+    this.children = children;
+  }
 
-    addChild(child: ASTNode): void {
-        this.children.push(child);
-    }
+  addChild(child: ASTNode): void {
+    this.children.push(child);
+  }
 }
 
 class Graph {
-    nodes: Set<string>;  // Set of unique nodes (statements)
-    edges: [string, string][];  // Array of edges, each being a pair of connected nodes
+  nodes: Set<string>; // Set of unique nodes (statements)
+  edges: [string, string][]; // Array of edges, each being a pair of connected nodes
 
-    constructor() {
-        this.nodes = new Set();
-        this.edges = [];
-    }
+  constructor() {
+    this.nodes = new Set();
+    this.edges = [];
+  }
 
-    addNode(node: string) {
-        this.nodes.add(node);
-    }
+  addNode(node: string) {
+    this.nodes.add(node);
+  }
 
-    addEdge(from: string, to: string) {
-        this.edges.push([from, to]);
-    }
+  addEdge(from: string, to: string) {
+    this.edges.push([from, to]);
+  }
 
-    display() {
-        console.log("Nodes:");
-        console.log(this.nodes);
-        console.log("Edges:");
-        console.log(this.edges);
-    }
+  display() {
+    console.log("Nodes:");
+    console.log(this.nodes);
+    console.log("Edges:");
+    console.log(this.edges);
+  }
+
+  getNodes() {
+    return this.nodes;
+  }
+
+  getEdges() {
+    return this.edges;
+  }
 }
 
-// Helper function to generate a unique node ID
-let nodeId = 0;
-function generateNodeId() {
-    return `Node${nodeId++}`;
-}
 
-/**
- * Traverse the AST and generate the graph.
- * 
- * @param ast The AST representing the program structure.
- * @param graph The graph to which nodes and edges are added.
- * @param startNode The starting node of the current block.
- * @returns The last node of the current block.
- */
 function generateGraph(ast: ASTNode, graph: Graph, startNode: string): string {
-    let previousNode = startNode;
+  let previousNode = startNode;
 
-    for (const child of ast.children) {
-        if (child.nodeType === "PAR") {
-            // Handle parallel block
-            const startParallel = previousNode;
+  for (const child of ast.children) {
+    if (child.nodeType === "PAR") {
+      // Handle parallel blocks
+      const parallelEnds: string[] = [];
 
-            // Create a placeholder for the end of the parallel branches
-            let parallelEnds: string[] = [];
+      // Process each branch of the parallel block
+      for (const parallelBranch of child.children) {
+        const branchStartNode = parallelBranch.nodeType; // Use the node value directly
+        graph.addNode(branchStartNode);
+        graph.addEdge(previousNode, branchStartNode); // Connect to the previous node
 
-            for (const parallelBranch of child.children) {
-                const branchEnd = generateGraph(parallelBranch, graph, startParallel);
-                parallelEnds.push(branchEnd);
-            }
-            // console.log();
-            
-            // Find the last node in parallel and connect it to the next part of the sequence
-            // const convergenceNode = child.children[child.children.length - 1].nodeType;
-            const convergenceNode = generateNodeId();
-            graph.addNode(convergenceNode);
+        // Recursively process the branch to get the end node
+        const branchEnd = generateGraph(parallelBranch, graph, branchStartNode);
+        parallelEnds.push(branchEnd);
+      }
 
-            // Connect all parallel ends to this convergence node
-            for (const parallelEnd of parallelEnds) {
-                graph.addEdge(parallelEnd, convergenceNode);
-            }
+      // If there is a next sequential node, connect the end of each parallel branch to it
+      const nextSequentialNode =
+        ast.children[ast.children.indexOf(child) + 1]?.nodeType || null;
 
-            previousNode = convergenceNode;
-        } else if (child.nodeType === "SEQ") {
-            // Sequential block: Connect nodes one after another
-            const startSeq = previousNode;
-            const endSeq = generateGraph(child, graph, startSeq);
-            previousNode = endSeq;
-        } else {
-            // Leaf node (actual instruction, e.g., A, B, etc.)
-            const currentNode = child.nodeType;
-            graph.addNode(currentNode);  // Ensure the node is added to the set
-            graph.addEdge(previousNode, currentNode);  // Create the edge
-            previousNode = currentNode;
-        }
+      if (nextSequentialNode) {
+        parallelEnds.forEach((parallelEnd) => {
+          graph.addEdge(parallelEnd, nextSequentialNode); // Connect each parallel end to the next node
+        });
+      }
+
+      // Update previousNode to the last processed parallel branch
+      previousNode = parallelEnds[0]; // Use the first parallel end for the next iteration
+    } else if (child.nodeType === "SEQ") {
+      // Sequential block: process it recursively
+      previousNode = generateGraph(child, graph, previousNode);
+    } else {
+      // Leaf nodes (actual instructions)
+      const currentNode = child.nodeType; // Use the node value directly
+      graph.addNode(currentNode);
+      graph.addEdge(previousNode, currentNode); // Connect to previous node
+      previousNode = currentNode; // Update previous node
     }
+  }
 
-    return previousNode;
+  return previousNode; // Return the last processed node
 }
 
-// Example AST from pseudocode
-const ast = new ASTNode("SEQ", [
-    new ASTNode("A"),
-    new ASTNode("PAR", [
-        new ASTNode("B"),
-        new ASTNode("D")
-    ]),
-    new ASTNode("F")
-]);
-
-// Create the graph and generate the graph structure from the AST
-export const graph = new Graph();
-const startNode = generateNodeId();
-graph.addNode(startNode);
-generateGraph(ast, graph, startNode);
-
-// Display the generated graph
-graph.display();
+export { ASTNode, Graph, generateGraph };
