@@ -4,6 +4,7 @@ import { useNodesState, useEdgesState, addEdge } from "@xyflow/react";
 import { useDebounce, useLocalStorage } from "react-use";
 
 import "@xyflow/react/dist/style.css";
+import { Node, Edge } from "@xyflow/react";
 import GraphView from "./components/GraphView";
 import { FlowViewProps, GraphViewProps } from "./utils/types";
 import { defaultGraph } from "./utils/flowConfig";
@@ -42,9 +43,35 @@ export default function Home() {
     setStoredEditorValue(code);
     let astOutput = parseProgram(code);
     const graphModel = new Graph();
-    generateGraph(astOutput, graphModel, "Node0");
-    console.log(graphModel.getNodes());
-    console.log(graphModel.getEdges());
+    generateGraph(astOutput, graphModel, "ROOT");
+
+    // console.log(graphModel.getNodes());
+    // console.log(graphModel.getEdges());
+
+    let newNodes: Node[] = [];
+    let newEdges: Edge[] = [];
+
+    graphModel.getNodes().forEach((node) => {
+      newNodes.push({
+        id: node,
+        data: { label: node },
+        position: { x: 0, y: 0 },
+      });
+    });
+
+    graphModel.getEdges().forEach((edge) => {
+      newEdges.push({
+        id: `${edge[0]}-${edge[1]}`,
+        source: edge[0],
+        target: edge[1],
+      });
+    });
+
+    setNodes(newNodes);
+    console.log(nodes);
+
+    setEdges(newEdges);
+    console.log(edges);
   };
 
   useDebounce(processCode, 1000, [code]);

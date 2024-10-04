@@ -1,5 +1,6 @@
 import { ReactFlow, Background, Controls, ControlButton } from "@xyflow/react";
 import { FlowViewProps, GraphViewProps } from "../utils/types";
+import { ElkNode } from "elkjs/lib/elk.bundled";
 
 function GraphView({
   graph,
