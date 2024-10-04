@@ -1,14 +1,20 @@
-class ASTNode {
-  nodeType: string;
-  children: ASTNode[];
-  constructor(nodeType: string, children: ASTNode[] = []) {
-    this.nodeType = nodeType;
-    this.children = children;
-  }
-  addChild(child: ASTNode): void {
-    this.children.push(child);
-  }
+enum NodeType {
+  SEQ = "SEQ",
+  PAR = "PAR",
+  VALUE = "VALUE",
 }
+
+type ValueNode = {
+  type: NodeType.VALUE;
+  value: string;
+};
+
+type StructureNode = {
+  type: NodeType.SEQ | NodeType.PAR;
+  children: ASTNode[];
+};
+
+type ASTNode = ValueNode | StructureNode;
 
 class Graph {
   nodes: Set<string>;
@@ -31,34 +37,45 @@ class Graph {
   }
 }
 
+function createValueNode(value: string): ValueNode {
+  if (value === NodeType.SEQ || value === NodeType.PAR)
+    throw new Error(`Node value cannot be a structure node: ${value}`);
+  return { type: NodeType.VALUE, value };
+}
+
+function createStructureNode(
+  type: NodeType.SEQ | NodeType.PAR,
+  children: ASTNode[] = []
+): StructureNode {
+  return { type, children };
+}
+
 function generateGraph(
   ast: ASTNode,
   graph: Graph,
   startNode: string
 ): string[] {
-  if (ast.children.length === 0) {
-    if (ast.nodeType === "SEQ" || ast.nodeType === "PAR") {
-      return [startNode];
-    }
-    graph.addNode(ast.nodeType);
-    graph.addEdge(startNode, ast.nodeType);
-    return [ast.nodeType];
+  switch (ast.type) {
+    case NodeType.SEQ:
+      return handleSequentialBlock(ast, graph, startNode);
+    case NodeType.PAR:
+      return handleParallelBlock(ast, graph, startNode);
+    case NodeType.VALUE:
+      graph.addNode(ast.value);
+      graph.addEdge(startNode, ast.value);
+      return [ast.value];
+    default:
+      throw new Error(`Unexpected node type: ${(ast as any).type}`);
   }
-
-  if (ast.nodeType === "SEQ") {
-    return handleSequentialBlock(ast, graph, startNode);
-  } else if (ast.nodeType === "PAR") {
-    return handleParallelBlock(ast, graph, startNode);
-  }
-
-  return [startNode];
 }
 
 function handleSequentialBlock(
-  ast: ASTNode,
+  ast: StructureNode,
   graph: Graph,
   startNode: string
 ): string[] {
+  if (ast.children.length === 0) return [startNode];
+
   let lastNodes = [startNode];
 
   for (const child of ast.children) {
@@ -74,10 +91,12 @@ function handleSequentialBlock(
 }
 
 function handleParallelBlock(
-  ast: ASTNode,
+  ast: StructureNode,
   graph: Graph,
   startNode: string
 ): string[] {
+  if (ast.children.length === 0) return [startNode];
+
   const endNodes: string[] = [];
 
   for (const child of ast.children) {
@@ -88,4 +107,13 @@ function handleParallelBlock(
   return endNodes;
 }
 
-export { ASTNode, Graph, generateGraph };
+export {
+  NodeType,
+  type ASTNode,
+  type ValueNode,
+  type StructureNode,
+  Graph,
+  generateGraph,
+  createValueNode,
+  createStructureNode,
+};

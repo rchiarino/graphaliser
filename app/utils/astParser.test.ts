@@ -1,7 +1,22 @@
-import { generateGraph, Graph, ASTNode } from "./astParser";
+import {
+  generateGraph,
+  Graph,
+  createValueNode,
+  createStructureNode,
+  NodeType,
+} from "./astParser";
+
+test("throws error when creating a value node with a structure node value", () => {
+  expect(() => createValueNode(NodeType.SEQ)).toThrow(
+    "Node value cannot be a structure node: SEQ"
+  );
+  expect(() => createValueNode(NodeType.PAR)).toThrow(
+    "Node value cannot be a structure node: PAR"
+  );
+});
 
 test("ignores SEQ statement", () => {
-  const ast = new ASTNode("SEQ");
+  const ast = createStructureNode(NodeType.SEQ);
 
   const graph = new Graph();
   const startNode = "Node0";
@@ -16,7 +31,7 @@ test("ignores SEQ statement", () => {
 });
 
 test("ignores PAR statement", () => {
-  const ast = new ASTNode("PAR");
+  const ast = createStructureNode(NodeType.PAR);
 
   const graph = new Graph();
   const startNode = "Node0";
@@ -31,7 +46,7 @@ test("ignores PAR statement", () => {
 });
 
 test("generates a single node", () => {
-  const ast = new ASTNode("A");
+  const ast = createValueNode("A");
 
   const graph = new Graph();
   const startNode = "Node0";
@@ -46,7 +61,10 @@ test("generates a single node", () => {
 });
 
 test("generates a begin end flow", () => {
-  const ast = new ASTNode("SEQ", [new ASTNode("A"), new ASTNode("B")]);
+  const ast = createStructureNode(NodeType.SEQ, [
+    createValueNode("A"),
+    createValueNode("B"),
+  ]);
 
   const graph = new Graph();
   const startNode = "Node0";
@@ -64,11 +82,11 @@ test("generates a begin end flow", () => {
 });
 
 test("generates multiple nodes from a begin end flow", () => {
-  const ast = new ASTNode("SEQ", [
-    new ASTNode("A"),
-    new ASTNode("B"),
-    new ASTNode("C"),
-    new ASTNode("D"),
+  const ast = createStructureNode(NodeType.SEQ, [
+    createValueNode("A"),
+    createValueNode("B"),
+    createValueNode("C"),
+    createValueNode("D"),
   ]);
 
   const graph = new Graph();
@@ -89,7 +107,7 @@ test("generates multiple nodes from a begin end flow", () => {
 });
 
 test("generates a single node from a cobegin coend flow", () => {
-  const ast = new ASTNode("PAR", [new ASTNode("A")]);
+  const ast = createStructureNode(NodeType.PAR, [createValueNode("A")]);
 
   const graph = new Graph();
   const startNode = "Node0";
@@ -104,7 +122,10 @@ test("generates a single node from a cobegin coend flow", () => {
 });
 
 test("generates cobegin coend flow", () => {
-  const ast = new ASTNode("PAR", [new ASTNode("A"), new ASTNode("B")]);
+  const ast = createStructureNode(NodeType.PAR, [
+    createValueNode("A"),
+    createValueNode("B"),
+  ]);
 
   const graph = new Graph();
   const startNode = "Node0";
@@ -122,9 +143,12 @@ test("generates cobegin coend flow", () => {
 });
 
 test("generates parallel flow with nested sequential", () => {
-  const ast = new ASTNode("PAR", [
-    new ASTNode("A"),
-    new ASTNode("SEQ", [new ASTNode("B"), new ASTNode("C")]),
+  const ast = createStructureNode(NodeType.PAR, [
+    createValueNode("A"),
+    createStructureNode(NodeType.SEQ, [
+      createValueNode("B"),
+      createValueNode("C"),
+    ]),
   ]);
 
   const graph = new Graph();
@@ -144,14 +168,17 @@ test("generates parallel flow with nested sequential", () => {
 });
 
 test("generates complex nested sequential and parallel flow", () => {
-  const ast = new ASTNode("SEQ", [
-    new ASTNode("A"),
-    new ASTNode("B"),
-    new ASTNode("PAR", [
-      new ASTNode("SEQ", [new ASTNode("C"), new ASTNode("D")]),
-      new ASTNode("E"),
+  const ast = createStructureNode(NodeType.SEQ, [
+    createValueNode("A"),
+    createValueNode("B"),
+    createStructureNode(NodeType.PAR, [
+      createStructureNode(NodeType.SEQ, [
+        createValueNode("C"),
+        createValueNode("D"),
+      ]),
+      createValueNode("E"),
     ]),
-    new ASTNode("F"),
+    createValueNode("F"),
   ]);
 
   const graph = new Graph();
@@ -175,14 +202,20 @@ test("generates complex nested sequential and parallel flow", () => {
 });
 
 test("generates complex nested parallel and sequential flow", () => {
-  const ast = new ASTNode("SEQ", [
-    new ASTNode("A"),
-    new ASTNode("B"),
-    new ASTNode("PAR", [
-      new ASTNode("SEQ", [new ASTNode("C"), new ASTNode("D")]),
-      new ASTNode("SEQ", [new ASTNode("E"), new ASTNode("F")]),
+  const ast = createStructureNode(NodeType.SEQ, [
+    createValueNode("A"),
+    createValueNode("B"),
+    createStructureNode(NodeType.PAR, [
+      createStructureNode(NodeType.SEQ, [
+        createValueNode("C"),
+        createValueNode("D"),
+      ]),
+      createStructureNode(NodeType.SEQ, [
+        createValueNode("E"),
+        createValueNode("F"),
+      ]),
     ]),
-    new ASTNode("G"),
+    createValueNode("G"),
   ]);
 
   const graph = new Graph();
