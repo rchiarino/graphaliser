@@ -1,5 +1,50 @@
 import { generateGraph, Graph, ASTNode } from "./astParser";
 
+test("ignores SEQ statement", () => {
+  const ast = new ASTNode("SEQ");
+
+  const graph = new Graph();
+  const startNode = "Node0";
+  graph.addNode(startNode);
+  generateGraph(ast, graph, startNode);
+
+  const expectedNodes = new Set(["Node0"]);
+  expect(graph.getNodes()).toEqual(expectedNodes);
+
+  const expectedEdges: [string, string][] = [];
+  expect(graph.getEdges()).toEqual(expectedEdges);
+});
+
+test("ignores PAR statement", () => {
+  const ast = new ASTNode("PAR");
+
+  const graph = new Graph();
+  const startNode = "Node0";
+  graph.addNode(startNode);
+  generateGraph(ast, graph, startNode);
+
+  const expectedNodes = new Set(["Node0"]);
+  expect(graph.getNodes()).toEqual(expectedNodes);
+
+  const expectedEdges: [string, string][] = [];
+  expect(graph.getEdges()).toEqual(expectedEdges);
+});
+
+test("generates a single node", () => {
+  const ast = new ASTNode("A");
+
+  const graph = new Graph();
+  const startNode = "Node0";
+  graph.addNode(startNode);
+  generateGraph(ast, graph, startNode);
+
+  const expectedNodes = new Set(["Node0", "A"]);
+  expect(graph.getNodes()).toEqual(expectedNodes);
+
+  const expectedEdges = [["Node0", "A"]];
+  expect(graph.getEdges()).toEqual(expectedEdges);
+});
+
 test("generates a begin end flow", () => {
   const ast = new ASTNode("SEQ", [new ASTNode("A"), new ASTNode("B")]);
 
@@ -43,6 +88,21 @@ test("generates multiple nodes from a begin end flow", () => {
   expect(graph.getEdges()).toEqual(expectedEdges);
 });
 
+test("generates a single node from a cobegin coend flow", () => {
+  const ast = new ASTNode("PAR", [new ASTNode("A")]);
+
+  const graph = new Graph();
+  const startNode = "Node0";
+  graph.addNode(startNode);
+  generateGraph(ast, graph, startNode);
+
+  const expectedNodes = new Set(["Node0", "A"]);
+  expect(graph.getNodes()).toEqual(expectedNodes);
+
+  const expectedEdges = [["Node0", "A"]];
+  expect(graph.getEdges()).toEqual(expectedEdges);
+});
+
 test("generates cobegin coend flow", () => {
   const ast = new ASTNode("PAR", [new ASTNode("A"), new ASTNode("B")]);
 
@@ -64,24 +124,21 @@ test("generates cobegin coend flow", () => {
 test("generates parallel flow with nested sequential", () => {
   const ast = new ASTNode("PAR", [
     new ASTNode("A"),
-    new ASTNode("SEQ", [
-      new ASTNode("B"),
-      new ASTNode("C")
-    ])
+    new ASTNode("SEQ", [new ASTNode("B"), new ASTNode("C")]),
   ]);
-  
+
   const graph = new Graph();
   const startNode = "Node0";
   graph.addNode(startNode);
   generateGraph(ast, graph, startNode);
-  
+
   const expectedNodes = new Set(["Node0", "A", "B", "C"]);
   expect(graph.getNodes()).toEqual(expectedNodes);
-  
+
   const expectedEdges = [
     ["Node0", "A"],
     ["Node0", "B"],
-    ["B", "C"]
+    ["B", "C"],
   ];
   expect(graph.getEdges()).toEqual(expectedEdges);
 });
@@ -91,15 +148,12 @@ test("generates complex nested sequential and parallel flow", () => {
     new ASTNode("A"),
     new ASTNode("B"),
     new ASTNode("PAR", [
-      new ASTNode("SEQ", [
-        new ASTNode("C"),
-        new ASTNode("D")
-      ]),
-      new ASTNode("E")
+      new ASTNode("SEQ", [new ASTNode("C"), new ASTNode("D")]),
+      new ASTNode("E"),
     ]),
-    new ASTNode("F")
+    new ASTNode("F"),
   ]);
-  
+
   const graph = new Graph();
   const startNode = "Node0";
   graph.addNode(startNode);
@@ -107,11 +161,10 @@ test("generates complex nested sequential and parallel flow", () => {
 
   console.log(graph.getNodes());
   console.log(graph.getEdges());
-  
-  
+
   const expectedNodes = new Set(["Node0", "A", "B", "C", "D", "E", "F"]);
   expect(graph.getNodes()).toEqual(expectedNodes);
-  
+
   const expectedEdges = [
     ["Node0", "A"],
     ["A", "B"],
@@ -119,7 +172,7 @@ test("generates complex nested sequential and parallel flow", () => {
     ["B", "E"],
     ["C", "D"],
     ["D", "F"],
-    ["E", "F"]
+    ["E", "F"],
   ];
   expect(graph.getEdges()).toEqual(expectedEdges);
 });
