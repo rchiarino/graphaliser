@@ -31,38 +31,60 @@ class Graph {
   }
 }
 
-function generateGraph(ast: ASTNode, graph: Graph, startNode: string): string[] {
-  if (ast.nodeType === "SEQ") {
-    return handleSequentialBlock(ast, graph, startNode);
-  } else if (ast.nodeType === "PAR") {
-    return handleParallelBlock(ast, graph, startNode);
-  } else {
-    // Leaf node
+function generateGraph(
+  ast: ASTNode,
+  graph: Graph,
+  startNode: string
+): string[] {
+  if (ast.children.length === 0) {
+    if (ast.nodeType === "SEQ" || ast.nodeType === "PAR") {
+      return [startNode];
+    }
     graph.addNode(ast.nodeType);
     graph.addEdge(startNode, ast.nodeType);
     return [ast.nodeType];
   }
-}
 
-function handleSequentialBlock(ast: ASTNode, graph: Graph, startNode: string): string[] {
-  let currentNodes = [startNode];
-  
-  for (const child of ast.children) {
-    const endNodes = generateGraph(child, graph, currentNodes[0]);
-    currentNodes = endNodes;
+  if (ast.nodeType === "SEQ") {
+    return handleSequentialBlock(ast, graph, startNode);
+  } else if (ast.nodeType === "PAR") {
+    return handleParallelBlock(ast, graph, startNode);
   }
-  
-  return currentNodes;
+
+  return [startNode];
 }
 
-function handleParallelBlock(ast: ASTNode, graph: Graph, startNode: string): string[] {
-  let endNodes: string[] = [];
-  
+function handleSequentialBlock(
+  ast: ASTNode,
+  graph: Graph,
+  startNode: string
+): string[] {
+  let lastNodes = [startNode];
+
+  for (const child of ast.children) {
+    const newLastNodes = [];
+    for (const node of lastNodes) {
+      const endNodes = generateGraph(child, graph, node);
+      newLastNodes.push(...endNodes);
+    }
+    lastNodes = newLastNodes;
+  }
+
+  return lastNodes;
+}
+
+function handleParallelBlock(
+  ast: ASTNode,
+  graph: Graph,
+  startNode: string
+): string[] {
+  const endNodes: string[] = [];
+
   for (const child of ast.children) {
     const childEndNodes = generateGraph(child, graph, startNode);
-    endNodes = endNodes.concat(childEndNodes);
+    endNodes.push(...childEndNodes);
   }
-  
+
   return endNodes;
 }
 

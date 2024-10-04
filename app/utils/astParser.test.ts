@@ -159,9 +159,6 @@ test("generates complex nested sequential and parallel flow", () => {
   graph.addNode(startNode);
   generateGraph(ast, graph, startNode);
 
-  console.log(graph.getNodes());
-  console.log(graph.getEdges());
-
   const expectedNodes = new Set(["Node0", "A", "B", "C", "D", "E", "F"]);
   expect(graph.getNodes()).toEqual(expectedNodes);
 
@@ -169,10 +166,42 @@ test("generates complex nested sequential and parallel flow", () => {
     ["Node0", "A"],
     ["A", "B"],
     ["B", "C"],
-    ["B", "E"],
     ["C", "D"],
+    ["B", "E"],
     ["D", "F"],
     ["E", "F"],
+  ];
+  expect(graph.getEdges()).toEqual(expectedEdges);
+});
+
+test("generates complex nested parallel and sequential flow", () => {
+  const ast = new ASTNode("SEQ", [
+    new ASTNode("A"),
+    new ASTNode("B"),
+    new ASTNode("PAR", [
+      new ASTNode("SEQ", [new ASTNode("C"), new ASTNode("D")]),
+      new ASTNode("SEQ", [new ASTNode("E"), new ASTNode("F")]),
+    ]),
+    new ASTNode("G"),
+  ]);
+
+  const graph = new Graph();
+  const startNode = "Node0";
+  graph.addNode(startNode);
+  generateGraph(ast, graph, startNode);
+
+  const expectedNodes = new Set(["Node0", "A", "B", "C", "D", "E", "F", "G"]);
+  expect(graph.getNodes()).toEqual(expectedNodes);
+
+  const expectedEdges = [
+    ["Node0", "A"],
+    ["A", "B"],
+    ["B", "C"],
+    ["C", "D"],
+    ["B", "E"],
+    ["E", "F"],
+    ["D", "G"],
+    ["F", "G"],
   ];
   expect(graph.getEdges()).toEqual(expectedEdges);
 });
