@@ -12,7 +12,7 @@ import {
   Node,
   Edge,
 } from '@xyflow/react';
-import ELK  from 'elkjs';
+import ELK, { ElkEdgeSection, ElkExtendedEdge }  from 'elkjs';
 
 
 const elk = new ELK();
@@ -24,18 +24,14 @@ const elkOptions = {
   'org.eclipse.elk.layered.nodePlacement.bk.fixedAlignment': 'BALANCED',
 };
 
-const getLayoutedElements = (nodes:Node[], edges:Edge[], options = {}) => {
+const getLayoutedElements = (nodes:Node[], edges : ElkExtendedEdge[], options = {}) => {
   const graph = {
     id: 'root',
     layoutOptions: options,
     children: nodes.map((node:Node) => ({
       ...node,
-      // Adjust the target and source handle positions based on the layout
-      // direction.
       targetPosition: 'top',
       sourcePosition: 'bottom',
-
-      // Hardcode a width and height for elk to use when layouting.
       width: 50,
       height: 50,
     })),
@@ -47,8 +43,6 @@ const getLayoutedElements = (nodes:Node[], edges:Edge[], options = {}) => {
     .then((layoutedGraph:any) => ({
       nodes: layoutedGraph.children.map((node:Node) => ({
         ...node,
-        // React Flow expects a position property on the node instead of `x`
-        // and `y` fields.
         position: { x: node.x, y: node.y },
       })),
 
