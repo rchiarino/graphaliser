@@ -31,7 +31,7 @@ class Graph {
   }
 }
 
-function generateGraph(ast: ASTNode, graph: Graph, startNode: string): string {
+function generateGraph(ast: ASTNode, graph: Graph, startNode: string): string[] {
   if (ast.nodeType === "SEQ") {
     return handleSequentialBlock(ast, graph, startNode);
   } else if (ast.nodeType === "PAR") {
@@ -40,27 +40,30 @@ function generateGraph(ast: ASTNode, graph: Graph, startNode: string): string {
     // Leaf node
     graph.addNode(ast.nodeType);
     graph.addEdge(startNode, ast.nodeType);
-    return ast.nodeType;
+    return [ast.nodeType];
   }
 }
 
-function handleSequentialBlock(ast: ASTNode, graph: Graph, startNode: string): string {
-  let currentNode = startNode;
+function handleSequentialBlock(ast: ASTNode, graph: Graph, startNode: string): string[] {
+  let currentNodes = [startNode];
+  
   for (const child of ast.children) {
-    currentNode = generateGraph(child, graph, currentNode);
+    const endNodes = generateGraph(child, graph, currentNodes[0]);
+    currentNodes = endNodes;
   }
-  return currentNode;
+  
+  return currentNodes;
 }
 
-function handleParallelBlock(ast: ASTNode, graph: Graph, startNode: string): string {
-  const endNodes: string[] = [];
+function handleParallelBlock(ast: ASTNode, graph: Graph, startNode: string): string[] {
+  let endNodes: string[] = [];
+  
   for (const child of ast.children) {
-    const endNode = generateGraph(child, graph, startNode);
-    endNodes.push(endNode);
+    const childEndNodes = generateGraph(child, graph, startNode);
+    endNodes = endNodes.concat(childEndNodes);
   }
-  // For simplicity, we're returning the first end node
-  // In a more complex implementation, you might want to create a join node
-  return endNodes[0] || startNode;
+  
+  return endNodes;
 }
 
 export { ASTNode, Graph, generateGraph };
