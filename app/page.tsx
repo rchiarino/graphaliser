@@ -7,7 +7,11 @@ import "@xyflow/react/dist/style.css";
 import { Node, Edge } from "@xyflow/react";
 import GraphView from "./components/GraphView";
 import { FlowViewProps, GraphViewProps } from "./utils/types";
-import { defaultGraph } from "./utils/flowConfig";
+import {
+  defaultGraph,
+  transformEdges,
+  transformNodes,
+} from "./utils/flowConfig";
 import EditorView from "./components/EditorView";
 import { defaultValue } from "./utils/editorConfig";
 import { parseProgram } from "./utils/editorToAST";
@@ -51,6 +55,13 @@ export default function Home() {
     let newNodes: Node[] = [];
     let newEdges: Edge[] = [];
 
+    let noDuplicatedEdges = graphModel
+      .getEdges()
+      .filter(
+        (edge, index, self) =>
+          index === self.findIndex((t) => t[0] === edge[0] && t[1] === edge[1])
+      );
+
     graphModel.getNodes().forEach((node) => {
       newNodes.push({
         id: node,
@@ -59,7 +70,7 @@ export default function Home() {
       });
     });
 
-    graphModel.getEdges().forEach((edge) => {
+    noDuplicatedEdges.forEach((edge) => {
       newEdges.push({
         id: `${edge[0]}-${edge[1]}`,
         source: edge[0],
@@ -67,10 +78,10 @@ export default function Home() {
       });
     });
 
-    setNodes(newNodes);
+    setNodes(transformNodes(newNodes));
     console.log(nodes);
 
-    setEdges(newEdges);
+    setEdges(transformEdges(newEdges));
     console.log(edges);
   };
 

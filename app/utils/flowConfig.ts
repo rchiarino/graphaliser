@@ -19,7 +19,7 @@ export const defaultGraph = {
   initialEdges: transformEdges(defaultEdges),
 };
 
-function transformNodes(nodes: Node[]): Node[] {
+export function transformNodes(nodes: Node[]): Node[] {
   return nodes.map((node) => {
     if (nodes.indexOf(node) === 0) {
       return {
@@ -37,7 +37,7 @@ function transformNodes(nodes: Node[]): Node[] {
   });
 }
 
-function transformEdges(edges: Edge[]): Edge[] {
+export function transformEdges(edges: Edge[]): Edge[] {
   return edges.map((edge) => {
     return {
       ...edge,
