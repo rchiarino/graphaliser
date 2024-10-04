@@ -1,10 +1,11 @@
 import { Edge, MarkerType, Node } from "@xyflow/react";
+const position = { x: 0, y: 0 };
 
 const defaultNodes: Node[] = [
-  { id: "1", position: { x: 100, y: 0 }, data: { label: "A" } }, // If this is a cobegin the x value is the middle of the childrens
-  { id: "2", position: { x: 0, y: 100 }, data: { label: "B" } }, // Mantains the same y as the basic
-  { id: "3", position: { x: 200, y: 100 }, data: { label: "C" } },
-  { id: "4", position: { x: 100, y: 200 }, data: { label: "D" } }, // same as the first
+  { id: "1", position, data: { label: "A" } }, // If this is a cobegin the x value is the middle of the childrens
+  { id: "2", position, data: { label: "B" } }, // Mantains the same y as the basic
+  { id: "3", position, data: { label: "C" } },
+  { id: "4", position, data: { label: "D" } }, // same as the first
 ];
 
 const defaultEdges: Edge[] = [

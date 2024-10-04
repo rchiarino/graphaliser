@@ -1,11 +1,9 @@
 "use client";
-import React, { useCallback, useState } from "react";
-import { useNodesState, useEdgesState, addEdge } from "@xyflow/react";
-import { useDebounce, useLocalStorage } from "react-use";
-
 import "@xyflow/react/dist/style.css";
+import React, { useCallback, useState } from "react";
+import { useNodesState, useEdgesState, addEdge, ReactFlowProvider } from "@xyflow/react";
+import { useDebounce, useLocalStorage } from "react-use";
 import { Node, Edge } from "@xyflow/react";
-import GraphView from "./components/GraphView";
 import { FlowViewProps, GraphViewProps } from "./utils/types";
 import {
   defaultGraph,
@@ -16,6 +14,7 @@ import EditorView from "./components/EditorView";
 import { defaultValue } from "./utils/editorConfig";
 import { parseProgram } from "./utils/editorToAST";
 import { Graph, generateGraph } from "./utils/astParser";
+import LayoutFlow from "./components/GraphView";
 
 export default function Home() {
   const [nodes, setNodes, onNodesChange] = useNodesState(
@@ -114,7 +113,9 @@ export default function Home() {
           </div>
         )}
         <div className={editorVisible ? "col-span-2" : "col-span-full"}>
-          <GraphView graph={graphConfig} view={flowConfig} />
+          <ReactFlowProvider>
+          <LayoutFlow graph={graphConfig} view={flowConfig} />
+          </ReactFlowProvider>
         </div>
       </section>
     </main>
