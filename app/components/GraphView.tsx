@@ -1,5 +1,5 @@
 import { FlowViewProps, GraphViewProps } from "../utils/types";
-import React, { useCallback, useLayoutEffect } from 'react';
+import React, { use, useCallback, useEffect, useLayoutEffect } from "react";
 import {
   ReactFlow,
   addEdge,
@@ -11,27 +11,33 @@ import {
   Background,
   Node,
   Edge,
-} from '@xyflow/react';
-import ELK, { ElkEdgeSection, ElkExtendedEdge }  from 'elkjs';
+} from "@xyflow/react";
+import ELK, { ElkExtendedEdge } from "elkjs";
 
+import { defaultGraph as DG } from "../utils/flowConfig";
 
 const elk = new ELK();
 
 const elkOptions = {
-  'elk.algorithm': 'layered',
-  'elk.layered.spacing.nodeNodeBetweenLayers': '80',
-  'elk.spacing.nodeNode': '30',
-  'org.eclipse.elk.layered.nodePlacement.bk.fixedAlignment': 'BALANCED',
+  "elk.direction": "DOWN",
+  "elk.algorithm": "layered",
+  "elk.layered.spacing.nodeNodeBetweenLayers": "30",
+  "elk.spacing.nodeNode": "30",
+  "org.eclipse.elk.layered.nodePlacement.bk.fixedAlignment": "BALANCED",
 };
 
-const getLayoutedElements = (nodes:Node[], edges : ElkExtendedEdge[], options = {}) => {
+const getLayoutedElements = (
+  nodes: Node[],
+  edges: ElkExtendedEdge[],
+  options = {}
+) => {
   const graph = {
-    id: 'root',
+    id: "root",
     layoutOptions: options,
-    children: nodes.map((node:Node) => ({
+    children: nodes.map((node: Node) => ({
       ...node,
-      targetPosition: 'top',
-      sourcePosition: 'bottom',
+      targetPosition: "top",
+      sourcePosition: "bottom",
       width: 50,
       height: 50,
     })),
@@ -40,8 +46,8 @@ const getLayoutedElements = (nodes:Node[], edges : ElkExtendedEdge[], options = 
 
   return elk
     .layout(graph)
-    .then((layoutedGraph:any) => ({
-      nodes: layoutedGraph.children.map((node:Node) => ({
+    .then((layoutedGraph: any) => ({
+      nodes: layoutedGraph.children.map((node: Node) => ({
         ...node,
         position: { x: node.x, y: node.y },
       })),
@@ -58,38 +64,44 @@ function LayoutFlow({
   graph: GraphViewProps;
   view: FlowViewProps;
 }) {
-  const [nodes, setNodes, onNodesChange] = useNodesState(graph.nodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(graph.edges);
+  const [nodes, setNodes, onNodesChange] = useNodesState(DG.initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(DG.initialEdges);
   const { fitView } = useReactFlow();
 
   const onConnect = useCallback(
-    (params:any) => setEdges((eds) => addEdge(params, eds)),
-    [],
+    (params: any) => setEdges((eds) => addEdge(params, eds)),
+    []
   );
 
-  const onLayout = useCallback(
-    ({ direction, useInitialNodes = false }) => {
-      const opts = { 'elk.direction': direction, ...elkOptions };
-      const ns = useInitialNodes ? graph.nodes : nodes;
-      const es = useInitialNodes ? graph.edges : edges;
+  const onLayout = useCallback(() => {
+    const ns = graph.nodes;
+    const es = graph.edges;
+    console.log("re layouting");
 
-      getLayoutedElements(ns, es, opts).then(
-        ({ nodes: layoutedNodes, edges: layoutedEdges }) => {
-          setNodes(layoutedNodes);
-          setEdges(layoutedEdges);
+    getLayoutedElements(ns, es, elkOptions).then(
+      ({ nodes: layoutedNodes, edges: layoutedEdges }) => {
+        setNodes(layoutedNodes);
+        setEdges(layoutedEdges);
 
-          window.requestAnimationFrame(() => fitView());
-        },
-      );
-    },
-    [nodes, edges],
-  );
+        window.requestAnimationFrame(() => fitView());
+      }
+    );
+  }, [nodes, edges]);
 
-
-  // Calculate the initial layout on mount.
   useLayoutEffect(() => {
-    onLayout({ direction: 'DOWN', useInitialNodes: true });
+    onLayout();
   }, []);
+
+  //Re-layout when the graph changes
+  useEffect(() => {
+    getLayoutedElements(graph.nodes, graph.edges, elkOptions).then(
+      ({ nodes: layoutedNodes, edges: layoutedEdges }) => {
+        setNodes(layoutedNodes);
+        setEdges(layoutedEdges);
+      }
+    );
+    window.requestAnimationFrame(() => fitView());
+  }, [graph]);
 
   return (
     <ReactFlow
@@ -152,5 +164,4 @@ function LayoutFlow({
   );
 }
 
-
-export default LayoutFlow
+export default LayoutFlow;

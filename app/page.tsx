@@ -1,15 +1,16 @@
 "use client";
 import "@xyflow/react/dist/style.css";
 import React, { useCallback, useState } from "react";
-import { useNodesState, useEdgesState, addEdge, ReactFlowProvider } from "@xyflow/react";
+import {
+  useNodesState,
+  useEdgesState,
+  addEdge,
+  ReactFlowProvider,
+} from "@xyflow/react";
 import { useDebounce, useLocalStorage } from "react-use";
 import { Node, Edge } from "@xyflow/react";
 import { FlowViewProps, GraphViewProps } from "./utils/types";
-import {
-  defaultGraph,
-  transformEdges,
-  transformNodes,
-} from "./utils/flowConfig";
+import { defaultGraph, transformEdges } from "./utils/flowConfig";
 import EditorView from "./components/EditorView";
 import { defaultValue } from "./utils/editorConfig";
 import { parseProgram } from "./utils/editorToAST";
@@ -48,9 +49,6 @@ export default function Home() {
     const graphModel = new Graph();
     generateGraph(astOutput, graphModel, "ROOT");
 
-    // console.log(graphModel.getNodes());
-    // console.log(graphModel.getEdges());
-
     let newNodes: Node[] = [];
     let newEdges: Edge[] = [];
 
@@ -77,11 +75,8 @@ export default function Home() {
       });
     });
 
-    setNodes(transformNodes(newNodes));
-    console.log(nodes);
-
+    setNodes(newNodes);
     setEdges(transformEdges(newEdges));
-    console.log(edges);
   };
 
   useDebounce(processCode, 1000, [code]);
@@ -114,7 +109,7 @@ export default function Home() {
         )}
         <div className={editorVisible ? "col-span-2" : "col-span-full"}>
           <ReactFlowProvider>
-          <LayoutFlow graph={graphConfig} view={flowConfig} />
+            <LayoutFlow graph={graphConfig} view={flowConfig} />
           </ReactFlowProvider>
         </div>
       </section>

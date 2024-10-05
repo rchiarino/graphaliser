@@ -1,8 +1,12 @@
-export const defaultValue = `// Basic cobegin-end example
-BEGIN
+export const defaultValue = `BEGIN
     A
     COBEGIN
-            B
+            BEGIN
+                B
+                X
+                Y
+                Z
+            END
             C
     COEND
     D
