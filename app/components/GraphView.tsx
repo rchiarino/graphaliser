@@ -13,6 +13,7 @@ import {
   FinalConnectionState,
   Edge,
   addEdge,
+  Connection,
 } from "@xyflow/react";
 import ELK, { ElkExtendedEdge, ElkNode } from "elkjs";
 
@@ -91,7 +92,7 @@ function LayoutFlow({
   }, []);
 
   const onConnect = useCallback(
-    (params: any) => setEdges((eds) => addEdge(params, eds)),
+    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
     []
   );
 
