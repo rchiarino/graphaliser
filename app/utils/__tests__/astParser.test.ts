@@ -4,7 +4,7 @@ import {
   createValueNode,
   createStructureNode,
   NodeType,
-} from "./astParser";
+} from "../astParser";
 
 test("throws error when creating a value node with a structure node value", () => {
   expect(() => createValueNode(NodeType.SEQ)).toThrow(
