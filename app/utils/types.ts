@@ -8,7 +8,7 @@ export interface GraphViewProps {
   onConnect: OnConnect;
 }
 
-export interface FlowViewProps {
+export interface EditorConfigProps {
   toggleEditor(): void;
   isShown: boolean;
 }

@@ -9,7 +9,7 @@ import {
 } from "@xyflow/react";
 import { useDebounce, useLocalStorage } from "react-use";
 import { Node, Edge } from "@xyflow/react";
-import { FlowViewProps, GraphViewProps } from "./utils/types";
+import { EditorConfigProps, GraphViewProps } from "./utils/types";
 import { defaultGraph, transformEdges } from "./utils/flowConfig";
 import EditorView from "./components/EditorView";
 import { defaultValue } from "./utils/editorConfig";
@@ -43,6 +43,7 @@ export default function Home() {
     setEditorVisible((state) => !state);
   };
 
+  //TODO: Refactor this code
   const processCode = async () => {
     setStoredEditorValue(code);
     let astOutput = parseProgram(code);
@@ -89,7 +90,7 @@ export default function Home() {
     onConnect: onConnect,
   };
 
-  const flowConfig: FlowViewProps = {
+  const EditorConfig: EditorConfigProps = {
     toggleEditor: toggleEditor,
     isShown: editorVisible,
   };
@@ -109,7 +110,7 @@ export default function Home() {
         )}
         <div className={editorVisible ? "col-span-2" : "col-span-full"}>
           <ReactFlowProvider>
-            <LayoutFlow graph={graphConfig} view={flowConfig} />
+            <LayoutFlow graph={graphConfig} editor={EditorConfig} />
           </ReactFlowProvider>
         </div>
       </section>

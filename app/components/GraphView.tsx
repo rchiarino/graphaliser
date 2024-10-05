@@ -1,5 +1,5 @@
-import { FlowViewProps, GraphViewProps } from "../utils/types";
-import React, { use, useCallback, useEffect, useLayoutEffect } from "react";
+import { EditorConfigProps, GraphViewProps } from "../utils/types";
+import React, { useCallback, useEffect, useLayoutEffect } from "react";
 import {
   ReactFlow,
   addEdge,
@@ -10,11 +10,8 @@ import {
   Controls,
   Background,
   Node,
-  Edge,
 } from "@xyflow/react";
 import ELK, { ElkExtendedEdge } from "elkjs";
-
-import { defaultGraph as DG } from "../utils/flowConfig";
 
 const elk = new ELK();
 
@@ -59,13 +56,13 @@ const getLayoutedElements = (
 
 function LayoutFlow({
   graph,
-  view,
+  editor,
 }: {
   graph: GraphViewProps;
-  view: FlowViewProps;
+  editor: EditorConfigProps;
 }) {
-  const [nodes, setNodes, onNodesChange] = useNodesState(DG.initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(DG.initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const { fitView } = useReactFlow();
 
   const onConnect = useCallback(
@@ -124,10 +121,10 @@ function LayoutFlow({
         showInteractive={false}
       >
         <ControlButton
-          title={view.isShown ? "Hide Editor" : "Show Editor"}
-          onClick={view.toggleEditor}
+          title={editor.isShown ? "Hide Editor" : "Show Editor"}
+          onClick={editor.toggleEditor}
         >
-          {view.isShown ? (
+          {editor.isShown ? (
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"

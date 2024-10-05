@@ -1,12 +1,7 @@
 export const defaultValue = `BEGIN
     A
     COBEGIN
-            BEGIN
-                B
-                X
-                Y
-                Z
-            END
+            B
             C
     COEND
     D

@@ -2,23 +2,17 @@ import { Edge, MarkerType, Node } from "@xyflow/react";
 const position = { x: 0, y: 0 };
 
 const defaultNodes: Node[] = [
-  { id: "1", position, data: { label: "A" } }, // If this is a cobegin the x value is the middle of the childrens
-  { id: "2", position, data: { label: "B" } }, // Mantains the same y as the basic
-  { id: "3", position, data: { label: "C" } },
-  { id: "4", position, data: { label: "X" } },
-  { id: "5", position, data: { label: "Y" } },
-  { id: "6", position, data: { label: "Z" } },
-  { id: "7", position, data: { label: "D" } }, // same as the first
+  { id: "A", position, data: { label: "A" } }, // If this is a cobegin the x value is the middle of the childrens
+  { id: "B", position, data: { label: "B" } }, // Mantains the same y as the basic
+  { id: "C", position, data: { label: "C" } },
+  { id: "D", position, data: { label: "D" } }, // same as the first
 ];
 
 const defaultEdges: Edge[] = [
-  { id: "1-2", source: "1", target: "2" },
-  { id: "1-3", source: "1", target: "3" },
-  { id: "2-4", source: "2", target: "4" },
-  { id: "4-5", source: "4", target: "5" },
-  { id: "5-6", source: "5", target: "6" },
-  { id: "6-7", source: "6", target: "7" },
-  { id: "3-7", source: "3", target: "7" },
+  { id: "A-B", source: "A", target: "B" },
+  { id: "A-C", source: "A", target: "C" },
+  { id: "B-D", source: "B", target: "D" },
+  { id: "C-D", source: "C", target: "D" },
 ];
 
 export const defaultGraph = {
