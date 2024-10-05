@@ -1,21 +1,22 @@
 import { Edge, MarkerType, Node } from "@xyflow/react";
+const position = { x: 0, y: 0 };
 
 const defaultNodes: Node[] = [
-  { id: "1", position: { x: 100, y: 0 }, data: { label: "A" } }, // If this is a cobegin the x value is the middle of the childrens
-  { id: "2", position: { x: 0, y: 100 }, data: { label: "B" } }, // Mantains the same y as the basic
-  { id: "3", position: { x: 200, y: 100 }, data: { label: "C" } },
-  { id: "4", position: { x: 100, y: 200 }, data: { label: "D" } }, // same as the first
+  { id: "A", position, data: { label: "A" } }, // If this is a cobegin the x value is the middle of the childrens
+  { id: "B", position, data: { label: "B" } }, // Mantains the same y as the basic
+  { id: "C", position, data: { label: "C" } },
+  { id: "D", position, data: { label: "D" } }, // same as the first
 ];
 
 const defaultEdges: Edge[] = [
-  { id: "1-2", source: "1", target: "2" },
-  { id: "1-3", source: "1", target: "3" },
-  { id: "2-4", source: "2", target: "4" },
-  { id: "3-4", source: "3", target: "4" },
+  { id: "A-B", source: "A", target: "B" },
+  { id: "A-C", source: "A", target: "C" },
+  { id: "B-D", source: "B", target: "D" },
+  { id: "C-D", source: "C", target: "D" },
 ];
 
 export const defaultGraph = {
-  initialNodes: transformNodes(defaultNodes),
+  initialNodes: defaultNodes,
   initialEdges: transformEdges(defaultEdges),
 };
 
@@ -37,12 +38,16 @@ function transformNodes(nodes: Node[]): Node[] {
   });
 }
 
-function transformEdges(edges: Edge[]): Edge[] {
-  return edges.map((edge) => {
+function removeRootEdges(edges: Edge[]): Edge[] {
+  return edges.filter((edge) => edge.source !== "ROOT");
+}
+
+export function transformEdges(edges: Edge[]): Edge[] {
+  return removeRootEdges(edges).map((edge) => {
     return {
       ...edge,
       markerEnd: { type: MarkerType.Arrow },
-      type: "straight",
+      //   type: "straight",
     };
   });
 }
