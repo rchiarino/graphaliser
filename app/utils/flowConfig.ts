@@ -20,24 +20,6 @@ export const defaultGraph = {
   initialEdges: transformEdges(defaultEdges),
 };
 
-function transformNodes(nodes: Node[]): Node[] {
-  return nodes.map((node) => {
-    if (nodes.indexOf(node) === 0) {
-      return {
-        ...node,
-        type: "input",
-      };
-    }
-    if (nodes.indexOf(node) === nodes.length - 1) {
-      return {
-        ...node,
-        type: "output",
-      };
-    }
-    return { ...node };
-  });
-}
-
 function removeRootEdges(edges: Edge[]): Edge[] {
   return edges.filter((edge) => edge.source !== "ROOT");
 }

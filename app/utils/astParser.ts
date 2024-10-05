@@ -65,7 +65,7 @@ function generateGraph(
       graph.addEdge(startNode, ast.value);
       return [ast.value];
     default:
-      throw new Error(`Unexpected node type: ${(ast as any).type}`);
+      throw new Error(`Unexpected node type`);
   }
 }
 
