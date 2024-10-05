@@ -1,12 +1,7 @@
 "use client";
 import "@xyflow/react/dist/style.css";
-import React, { useCallback, useState } from "react";
-import {
-  useNodesState,
-  useEdgesState,
-  addEdge,
-  ReactFlowProvider,
-} from "@xyflow/react";
+import React, { useState } from "react";
+import { useNodesState, useEdgesState, ReactFlowProvider } from "@xyflow/react";
 import { useDebounce, useLocalStorage } from "react-use";
 import { Node, Edge } from "@xyflow/react";
 import { EditorConfigProps, GraphViewProps } from "./utils/types";
@@ -18,12 +13,8 @@ import { Graph, generateGraph } from "./utils/astParser";
 import LayoutFlow from "./components/GraphView";
 
 export default function Home() {
-  const [nodes, setNodes, onNodesChange] = useNodesState(
-    defaultGraph.initialNodes
-  );
-  const [edges, setEdges, onEdgesChange] = useEdgesState(
-    defaultGraph.initialEdges
-  );
+  const [nodes, setNodes] = useNodesState(defaultGraph.initialNodes);
+  const [edges, setEdges] = useEdgesState(defaultGraph.initialEdges);
 
   const [editorVisible, setEditorVisible] = useState(true);
 
@@ -34,11 +25,6 @@ export default function Home() {
 
   const [code, setText] = useState(storedEditorValue!);
 
-  const onConnect = useCallback(
-    (params: any) => setEdges((eds: any) => addEdge(params, eds)),
-    [setEdges]
-  );
-
   const toggleEditor = () => {
     setEditorVisible((state) => !state);
   };
@@ -46,14 +32,14 @@ export default function Home() {
   //TODO: Refactor this code
   const processCode = async () => {
     setStoredEditorValue(code);
-    let astOutput = parseProgram(code);
+    const astOutput = parseProgram(code);
     const graphModel = new Graph();
     generateGraph(astOutput, graphModel, "ROOT");
 
-    let newNodes: Node[] = [];
-    let newEdges: Edge[] = [];
+    const newNodes: Node[] = [];
+    const newEdges: Edge[] = [];
 
-    let noDuplicatedEdges = graphModel
+    const noDuplicatedEdges = graphModel
       .getEdges()
       .filter(
         (edge, index, self) =>
@@ -84,10 +70,7 @@ export default function Home() {
 
   const graphConfig: GraphViewProps = {
     nodes: nodes,
-    onNodesChange: onNodesChange,
     edges: edges,
-    onEdgesChange: onEdgesChange,
-    onConnect: onConnect,
   };
 
   const EditorConfig: EditorConfigProps = {

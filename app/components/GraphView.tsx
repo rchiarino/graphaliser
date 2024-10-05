@@ -2,7 +2,6 @@ import { EditorConfigProps, GraphViewProps } from "../utils/types";
 import React, { useCallback, useEffect, useLayoutEffect } from "react";
 import {
   ReactFlow,
-  addEdge,
   useNodesState,
   useEdgesState,
   useReactFlow,
@@ -11,7 +10,7 @@ import {
   Background,
   Node,
 } from "@xyflow/react";
-import ELK, { ElkExtendedEdge } from "elkjs";
+import ELK, { ElkExtendedEdge, ElkNode } from "elkjs";
 
 const elk = new ELK();
 
@@ -43,11 +42,12 @@ const getLayoutedElements = (
 
   return elk
     .layout(graph)
-    .then((layoutedGraph: any) => ({
-      nodes: layoutedGraph.children.map((node: Node) => ({
-        ...node,
-        position: { x: node.x, y: node.y },
-      })),
+    .then((layoutedGraph) => ({
+      nodes:
+        layoutedGraph.children?.map((node: ElkNode) => ({
+          ...node,
+          position: { x: node.x, y: node.y },
+        })) ?? [],
 
       edges: layoutedGraph.edges,
     }))
@@ -62,20 +62,17 @@ function LayoutFlow({
   editor: EditorConfigProps;
 }) {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [edges, setEdges] = useEdgesState([]);
   const { fitView } = useReactFlow();
-
-  const onConnect = useCallback(
-    (params: any) => setEdges((eds) => addEdge(params, eds)),
-    []
-  );
 
   const onLayout = useCallback(() => {
     const ns = graph.nodes;
     const es = graph.edges;
     console.log("re layouting");
 
+    //@ts-expect-error - TODO:Need to implement a encoder for the edges
     getLayoutedElements(ns, es, elkOptions).then(
+      // @ts-expect-error layoutedNodes and layoutedEdges are empty if the graph is empty
       ({ nodes: layoutedNodes, edges: layoutedEdges }) => {
         setNodes(layoutedNodes);
         setEdges(layoutedEdges);
@@ -83,7 +80,7 @@ function LayoutFlow({
         window.requestAnimationFrame(() => fitView());
       }
     );
-  }, [nodes, edges]);
+  }, []);
 
   useLayoutEffect(() => {
     onLayout();
@@ -91,7 +88,9 @@ function LayoutFlow({
 
   //Re-layout when the graph changes
   useEffect(() => {
+    //@ts-expect-error - TODO:Need to implement a encoder for the edges
     getLayoutedElements(graph.nodes, graph.edges, elkOptions).then(
+      // @ts-expect-error layoutedNodes and layoutedEdges are empty if the graph is empty
       ({ nodes: layoutedNodes, edges: layoutedEdges }) => {
         setNodes(layoutedNodes);
         setEdges(layoutedEdges);
@@ -105,9 +104,7 @@ function LayoutFlow({
       colorMode="dark"
       nodes={nodes}
       edges={edges}
-      onConnect={onConnect}
       onNodesChange={onNodesChange}
-      onEdgesChange={onEdgesChange}
       fitView
     >
       <Background />
