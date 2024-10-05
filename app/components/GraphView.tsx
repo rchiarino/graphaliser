@@ -9,6 +9,10 @@ import {
   Controls,
   Background,
   Node,
+  MarkerType,
+  FinalConnectionState,
+  Edge,
+  addEdge,
 } from "@xyflow/react";
 import ELK, { ElkExtendedEdge, ElkNode } from "elkjs";
 
@@ -27,7 +31,7 @@ const getLayoutedElements = (
   edges: ElkExtendedEdge[],
   options = {}
 ) => {
-  const graph = {
+  const flow = {
     id: "root",
     layoutOptions: options,
     children: nodes.map((node: Node) => ({
@@ -40,8 +44,10 @@ const getLayoutedElements = (
     edges: edges,
   };
 
+  console.log(flow);
+
   return elk
-    .layout(graph)
+    .layout(flow)
     .then((layoutedGraph) => ({
       nodes:
         layoutedGraph.children?.map((node: ElkNode) => ({
@@ -61,9 +67,11 @@ function LayoutFlow({
   graph: GraphViewProps;
   editor: EditorConfigProps;
 }) {
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges] = useEdgesState([]);
-  const { fitView } = useReactFlow();
+  const emptyNodes: Node[] = [];
+  const emptyEdges: Edge[] = [];
+  const [nodes, setNodes, onNodesChange] = useNodesState(emptyNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(emptyEdges);
+  const { fitView, screenToFlowPosition } = useReactFlow();
 
   const onLayout = useCallback(() => {
     const ns = graph.nodes;
@@ -81,6 +89,58 @@ function LayoutFlow({
       }
     );
   }, []);
+
+  const onConnect = useCallback(
+    (params: any) => setEdges((eds) => addEdge(params, eds)),
+    []
+  );
+
+  const addNode = useCallback(
+    (event: MouseEvent | TouchEvent, connectionState: FinalConnectionState) => {
+      // when a connection is dropped on the pane it's not valid
+      if (!connectionState.isValid) {
+        // we need to remove the wrapper bounds, in order to get the correct position
+        const id = `${nodes.length + 1}`;
+        const { clientX, clientY } =
+          "changedTouches" in event ? event.changedTouches[0] : event;
+        const newNode: Node = {
+          id,
+          data: { label: `${id}` },
+          width: 50,
+          height: 50,
+          position: screenToFlowPosition({
+            x: clientX,
+            y: clientY,
+          }),
+          origin: [0.5, 0.0],
+        };
+
+        const updatedNodes = nodes.concat(newNode);
+        const updatedEdges = edges.concat({
+          id,
+          source: connectionState.fromNode!.id,
+          target: id,
+          markerEnd: { type: MarkerType.Arrow },
+        });
+
+        console.log("re layouting from addNode");
+        console.log(updatedNodes, updatedEdges);
+
+        //@ts-expect-error - TODO:Need to implement a encoder for the edges
+        getLayoutedElements(updatedNodes, updatedEdges, elkOptions).then(
+          // @ts-expect-error layoutedNodes and layoutedEdges are empty if the graph is empty
+          ({ nodes: layoutedNodes, edges: layoutedEdges }) => {
+            setNodes(layoutedNodes);
+            setEdges(layoutedEdges);
+
+            console.log(layoutedNodes, layoutedEdges);
+          }
+        );
+        window.requestAnimationFrame(() => fitView());
+      }
+    },
+    [screenToFlowPosition, nodes, edges]
+  );
 
   useLayoutEffect(() => {
     onLayout();
@@ -105,6 +165,10 @@ function LayoutFlow({
       nodes={nodes}
       edges={edges}
       onNodesChange={onNodesChange}
+      onEdgesChange={onEdgesChange}
+      snapToGrid={true}
+      onConnect={onConnect}
+      onConnectEnd={addNode}
       fitView
     >
       <Background />
