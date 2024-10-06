@@ -234,6 +234,9 @@ function LayoutFlow({
         toast.info("Panel context menu not implemented yet");
       }}
       onEdgesChange={onEdgesChange}
+      onEdgeContextMenu={(event) => {
+        event.preventDefault();
+      }}
       proOptions={{ hideAttribution: true }}
     >
       <Menu />
