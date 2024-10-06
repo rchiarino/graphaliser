@@ -18,9 +18,9 @@ function ToggleEditor({
         title={isOpen ? "Close Editor" : "Open Editor"}
       >
         {isOpen ? (
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-5 w-5" />
         ) : (
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-5 w-5" />
         )}
       </Button>
     </div>

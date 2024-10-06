@@ -81,9 +81,6 @@ export function Menu() {
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <span>Menu item</span>
-            </DropdownMenuItem>
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
                 <Palette className="mr-2 h-4 w-4" />

@@ -1,12 +1,16 @@
 import { EditorConfigProps, GraphViewProps } from "../utils/types";
-import React, { useCallback, useEffect, useLayoutEffect } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   ReactFlow,
   useNodesState,
   useEdgesState,
   useReactFlow,
-  ControlButton,
-  Controls,
   Background,
   Node,
   MarkerType,
@@ -16,16 +20,11 @@ import {
   Connection,
 } from "@xyflow/react";
 import ELK, { ElkExtendedEdge, ElkNode } from "elkjs";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "@/app/components/ui/context-menu";
 
 import { Menu } from "./Menu";
 import { useTheme } from "next-themes";
 import ToggleEditor from "./ToggleEditor";
+import NodeContextMenu from "./NodeContextMenu";
 
 const elk = new ELK();
 
@@ -55,8 +54,6 @@ const getLayoutedElements = (
     edges: edges,
   };
 
-  console.log(flow);
-
   return elk
     .layout(flow)
     .then((layoutedGraph) => ({
@@ -84,11 +81,38 @@ function LayoutFlow({
   const [nodes, setNodes, onNodesChange] = useNodesState(emptyNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(emptyEdges);
   const { fitView, screenToFlowPosition } = useReactFlow();
+  const [nodeMenu, setMenu] = useState(null);
+  const ref = useRef(null);
+
+  const onNodeContextMenu = useCallback(
+    (event: MouseEvent, node: Node) => {
+      event.preventDefault();
+
+      //@ts-expect-error - workarround needed
+      const pane = ref.current?.getBoundingClientRect();
+
+      // translate the position of the context menu if the editor is open or the window is resized
+      const widthDiff = window.innerWidth - pane.width;
+      const translatedClientX = event.clientX - widthDiff;
+
+      // Calculate position of the context menu. We want to make sure it doesn't get positioned off-screen.
+      setMenu({
+        // @ts-expect-error - is part of ContextMenuProps
+        id: node.id,
+        top: event.clientY < pane.height - 200 && event.clientY,
+        left: event.clientX < pane.width - 200 && translatedClientX,
+        right:
+          event.clientX >= pane.width - 200 && pane.width - translatedClientX,
+        bottom:
+          event.clientY >= pane.height - 200 && pane.height - event.clientY,
+      });
+    },
+    [setMenu]
+  );
 
   const onLayout = useCallback(() => {
     const ns = graph.nodes;
     const es = graph.edges;
-    console.log("re layouting");
 
     //@ts-expect-error - TODO:Need to implement a encoder for the edges
     getLayoutedElements(ns, es, elkOptions).then(
@@ -135,17 +159,12 @@ function LayoutFlow({
           markerEnd: { type: MarkerType.Arrow },
         });
 
-        console.log("re layouting from addNode");
-        console.log(updatedNodes, updatedEdges);
-
         //@ts-expect-error - TODO:Need to implement a encoder for the edges
         getLayoutedElements(updatedNodes, updatedEdges, elkOptions).then(
           // @ts-expect-error layoutedNodes and layoutedEdges are empty if the graph is empty
           ({ nodes: layoutedNodes, edges: layoutedEdges }) => {
             setNodes(layoutedNodes);
             setEdges(layoutedEdges);
-
-            console.log(layoutedNodes, layoutedEdges);
           }
         );
         window.requestAnimationFrame(() => fitView());
@@ -171,30 +190,40 @@ function LayoutFlow({
     window.requestAnimationFrame(() => fitView());
   }, [graph]);
 
+  // Close the context menu if it's open whenever the window is clicked.
+  const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
+
   return (
-    <ContextMenu>
-      <ContextMenuTrigger>
-        <ReactFlow
-          colorMode={theme.resolvedTheme === "light" ? "light" : "dark"}
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          snapToGrid={true}
-          onConnect={onConnect}
-          onConnectEnd={addNode}
-          fitView
-          proOptions={{ hideAttribution: true }}
-        >
-          <Menu />
-          <ToggleEditor isOpen={editor.isShown} onClick={editor.toggleEditor} />
-          <Background />
-        </ReactFlow>
-      </ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuItem>Add Node</ContextMenuItem>
-      </ContextMenuContent>
-    </ContextMenu>
+    <ReactFlow
+      fitView
+      ref={ref}
+      colorMode={theme.resolvedTheme === "light" ? "light" : "dark"}
+      nodes={nodes}
+      edges={edges}
+      snapToGrid={true}
+      onConnect={onConnect}
+      onConnectEnd={addNode}
+      onNodesChange={onNodesChange}
+      // @ts-expect-error - workarround needed
+      onNodeContextMenu={onNodeContextMenu}
+      onPaneClick={onPaneClick}
+      onPaneContextMenu={() => {
+        alert("Pane context menu");
+      }}
+      onEdgesChange={onEdgesChange}
+      onEdgeContextMenu={() => {
+        alert("Edge context menu");
+      }}
+      proOptions={{ hideAttribution: true }}
+    >
+      <Menu />
+      <ToggleEditor isOpen={editor.isShown} onClick={editor.toggleEditor} />
+      {
+        // @ts-expect-error - the object is not null is a valid value
+        nodeMenu && <NodeContextMenu {...nodeMenu} />
+      }
+      <Background />
+    </ReactFlow>
   );
 }
 
