@@ -3,6 +3,7 @@ import Editor, { useMonaco } from "@monaco-editor/react";
 import { useEffect } from "react";
 
 import * as cobeginEndLanguage from "../language/cobegin-end/cobegin-end";
+import { useTheme } from "next-themes";
 
 export interface EditorViewProps {
   value: string;
@@ -11,6 +12,7 @@ export interface EditorViewProps {
 
 function EditorView({ value, onChange }: EditorViewProps) {
   const monaco = useMonaco();
+  const theme = useTheme();
 
   useEffect(() => {
     if (monaco) {
@@ -30,14 +32,14 @@ function EditorView({ value, onChange }: EditorViewProps) {
     <Editor
       height="100%"
       language="cobegin-end"
-      theme="vs-dark"
+      theme={theme.resolvedTheme === "dark" ? "vs-dark" : "light"}
       value={value}
       onChange={onChange}
       options={{
         minimap: { enabled: false },
         smoothScrolling: true,
         cursorSmoothCaretAnimation: "on",
-        scrollBeyondLastLine: true,
+        scrollBeyondLastLine: false,
       }}
     />
   );

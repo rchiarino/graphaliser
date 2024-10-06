@@ -11,6 +11,8 @@ import { defaultValue } from "./utils/editorConfig";
 import { parseProgram } from "./utils/editorToAST";
 import { Graph, generateGraph } from "./utils/astParser";
 import LayoutFlow from "./components/GraphView";
+import { Toaster } from "sonner";
+import { useTheme } from "next-themes";
 
 export default function Home() {
   const [nodes, setNodes] = useNodesState(defaultGraph.initialNodes);
@@ -78,6 +80,8 @@ export default function Home() {
     isShown: editorVisible,
   };
 
+  const theme = useTheme();
+
   return (
     <main>
       <section className="w-screen h-screen grid grid-cols-3">
@@ -97,6 +101,7 @@ export default function Home() {
           </ReactFlowProvider>
         </div>
       </section>
+      <Toaster theme={theme.resolvedTheme === "light" ? "light" : "dark"} />
     </main>
   );
 }
