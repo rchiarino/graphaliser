@@ -1,5 +1,5 @@
 import { Node, Edge } from "@xyflow/react";
-import { getOutgoers, getIncomers } from "@xyflow/react";
+import { getOutgoers } from "@xyflow/react";
 
 function findRootNode(nodes: Node[], edges: Edge[]): Node | undefined {
   return nodes.find((node) => {
