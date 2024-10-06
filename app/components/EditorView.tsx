@@ -37,7 +37,7 @@ function EditorView({ value, onChange }: EditorViewProps) {
         minimap: { enabled: false },
         smoothScrolling: true,
         cursorSmoothCaretAnimation: "on",
-        scrollBeyondLastLine: true,
+        scrollBeyondLastLine: false,
       }}
     />
   );
