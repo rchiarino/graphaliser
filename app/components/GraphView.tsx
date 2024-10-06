@@ -25,6 +25,7 @@ import { Menu } from "./Menu";
 import { useTheme } from "next-themes";
 import ToggleEditor from "./ToggleEditor";
 import NodeContextMenu from "./NodeContextMenu";
+import { isValidNewEdge } from "../utils/edgeValidator";
 
 const elk = new ELK();
 
@@ -127,8 +128,22 @@ function LayoutFlow({
   }, []);
 
   const onConnect = useCallback(
-    (params: Connection) => setEdges((eds) => addEdge(params, eds)),
-    []
+    (params: Connection) => {
+      const newEdge = {
+        id: `${params.source}-${params.target}`,
+        source: params.source,
+        target: params.target,
+      };
+
+      const { isValid, reason } = isValidNewEdge(nodes, edges, newEdge);
+
+      if (isValid) {
+        setEdges((eds) => addEdge(params, eds));
+      } else {
+        console.warn(reason);
+      }
+    },
+    [nodes, edges]
   );
 
   const addNode = useCallback(
