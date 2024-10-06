@@ -26,6 +26,7 @@ import { useTheme } from "next-themes";
 import ToggleEditor from "./ToggleEditor";
 import NodeContextMenu from "./NodeContextMenu";
 import { isValidNewEdge } from "../utils/edgeValidator";
+import { toast } from "sonner";
 
 const elk = new ELK();
 
@@ -82,7 +83,7 @@ function LayoutFlow({
   const [nodes, setNodes, onNodesChange] = useNodesState(emptyNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(emptyEdges);
   const { fitView, screenToFlowPosition } = useReactFlow();
-  const [nodeMenu, setMenu] = useState(null);
+  const [nodeMenu, setNodeMenu] = useState(null);
   const ref = useRef(null);
 
   const onNodeContextMenu = useCallback(
@@ -97,7 +98,7 @@ function LayoutFlow({
       const translatedClientX = event.clientX - widthDiff;
 
       // Calculate position of the context menu. We want to make sure it doesn't get positioned off-screen.
-      setMenu({
+      setNodeMenu({
         // @ts-expect-error - is part of ContextMenuProps
         id: node.id,
         top: event.clientY < pane.height - 200 && event.clientY,
@@ -108,7 +109,7 @@ function LayoutFlow({
           event.clientY >= pane.height - 200 && pane.height - event.clientY,
       });
     },
-    [setMenu]
+    [setNodeMenu]
   );
 
   const onLayout = useCallback(() => {
@@ -135,12 +136,17 @@ function LayoutFlow({
         target: params.target,
       };
 
-      const { isValid, reason } = isValidNewEdge(nodes, edges, newEdge);
+      const { isValid, message, reason } = isValidNewEdge(
+        nodes,
+        edges,
+        newEdge
+      );
 
       if (isValid) {
         setEdges((eds) => addEdge(params, eds));
       } else {
         console.warn(reason);
+        toast.warning(message, { description: reason });
       }
     },
     [nodes, edges]
@@ -206,7 +212,7 @@ function LayoutFlow({
   }, [graph]);
 
   // Close the context menu if it's open whenever the window is clicked.
-  const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
+  const onPaneClick = useCallback(() => setNodeMenu(null), [setNodeMenu]);
 
   return (
     <ReactFlow
@@ -222,8 +228,9 @@ function LayoutFlow({
       // @ts-expect-error - workarround needed
       onNodeContextMenu={onNodeContextMenu}
       onPaneClick={onPaneClick}
-      onPaneContextMenu={() => {
-        alert("Pane context menu");
+      onPaneContextMenu={(event) => {
+        event.preventDefault();
+        toast.info("Panel context menu not implemented yet");
       }}
       onEdgesChange={onEdgesChange}
       proOptions={{ hideAttribution: true }}

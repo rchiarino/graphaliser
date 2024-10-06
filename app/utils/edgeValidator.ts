@@ -11,10 +11,10 @@ export function isValidNewEdge(
   nodes: Node[],
   existingEdges: Edge[],
   newEdge: Edge
-): { isValid: boolean; reason?: string } {
+): { isValid: boolean; message?: string; reason?: string } {
   const rootNode = findRootNode(nodes, existingEdges);
   if (!rootNode) {
-    return { isValid: false, reason: "No valid root node found" };
+    return { isValid: false, message: "No valid root node found" };
   }
 
   function findPath(
@@ -48,9 +48,8 @@ export function isValidNewEdge(
   if (existingPath) {
     return {
       isValid: false,
-      reason: `Edge would create a shortcut. Existing path: ${existingPath.join(
-        " -> "
-      )}`,
+      message: "Edge would create a shortcut.",
+      reason: `Existing path: ${existingPath.join(" -> ")}`,
     };
   }
 
@@ -58,10 +57,8 @@ export function isValidNewEdge(
   if (pathBackToSource) {
     return {
       isValid: false,
-      reason: `Edge would create a cycle: ${[
-        newEdge.source,
-        ...pathBackToSource,
-      ].join(" -> ")}`,
+      message: "Edge would create a cycle.",
+      reason: `${[newEdge.source, ...pathBackToSource].join(" -> ")}`,
     };
   }
 
