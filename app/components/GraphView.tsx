@@ -23,9 +23,9 @@ import {
   ContextMenuTrigger,
 } from "@/app/components/ui/context-menu";
 
-import { Menu } from "./ui/Menu";
+import { Menu } from "./Menu";
 import { useTheme } from "next-themes";
-import ToggleEditor from "./ui/ToggleEditor";
+import ToggleEditor from "./ToggleEditor";
 
 const elk = new ELK();
 
