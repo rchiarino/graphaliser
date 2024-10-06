@@ -16,7 +16,6 @@ import {
   Connection,
 } from "@xyflow/react";
 import ELK, { ElkExtendedEdge, ElkNode } from "elkjs";
-import DownloadButton from "./ui/DownloadButton";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -24,15 +23,8 @@ import {
   ContextMenuTrigger,
 } from "@/app/components/ui/context-menu";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/app/components/ui/dropdown-menu";
 import { Menu } from "./ui/Menu";
+import { useTheme } from "next-themes";
 
 const elk = new ELK();
 
@@ -85,6 +77,7 @@ function LayoutFlow({
   graph: GraphViewProps;
   editor: EditorConfigProps;
 }) {
+  const theme = useTheme();
   const emptyNodes: Node[] = [];
   const emptyEdges: Edge[] = [];
   const [nodes, setNodes, onNodesChange] = useNodesState(emptyNodes);
@@ -181,7 +174,7 @@ function LayoutFlow({
     <ContextMenu>
       <ContextMenuTrigger>
         <ReactFlow
-          colorMode="dark"
+          colorMode={theme.resolvedTheme === "light" ? "light" : "dark"}
           nodes={nodes}
           edges={edges}
           onNodesChange={onNodesChange}
@@ -243,7 +236,6 @@ function LayoutFlow({
       </ContextMenuTrigger>
       <ContextMenuContent>
         <ContextMenuItem>Add Node</ContextMenuItem>
-        <ContextMenuItem>Export As PNG</ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
   );

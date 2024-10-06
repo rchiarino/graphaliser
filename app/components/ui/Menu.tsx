@@ -1,16 +1,4 @@
-import {
-  Download,
-  Mail,
-  MessageSquare,
-  Moon,
-  Palette,
-  Plus,
-  PlusCircle,
-  Sun,
-  SunMoon,
-  UserPlus,
-  Users,
-} from "lucide-react";
+import { Download, Moon, Palette, Sun, SunMoon } from "lucide-react";
 
 import { Button } from "@/app/components/ui/button";
 import {
@@ -21,14 +9,60 @@ import {
   DropdownMenuLabel,
   DropdownMenuPortal,
   DropdownMenuSeparator,
-  DropdownMenuShortcut,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/app/components/ui/dropdown-menu";
+import { toPng } from "html-to-image";
+import React from "react";
+import {
+  useReactFlow,
+  getViewportForBounds,
+  getNodesBounds,
+} from "@xyflow/react";
+
+import { useTheme } from "next-themes";
+
+const downloadImage = (dataUrl: string) => {
+  const a = document.createElement("a");
+
+  a.setAttribute("download", `graphaliser-${Date.now()}.png`);
+  a.setAttribute("href", dataUrl);
+  a.click();
+};
 
 export function Menu() {
+  const { setTheme } = useTheme();
+  const { getNodes } = useReactFlow();
+
+  const downloadGraph = () => {
+    const nodesBounds = getNodesBounds(getNodes());
+    const { height: imageHeight, width: imageWidth } = nodesBounds;
+    const transform = getViewportForBounds(
+      nodesBounds,
+      imageWidth,
+      imageHeight,
+      1,
+      4,
+      2
+    );
+    const viewport: HTMLDivElement = document.querySelector(
+      ".react-flow__viewport"
+    )!;
+
+    toPng(viewport, {
+      width: imageWidth,
+      height: imageHeight,
+      style: {
+        width: `${imageWidth}`,
+        height: `${imageHeight}`,
+        transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.zoom})`,
+      },
+    })
+      .then(downloadImage)
+      .catch(console.error);
+  };
   return (
     <div className="z-[4] absolute top-4 right-4 ">
       <DropdownMenu>
@@ -39,7 +73,7 @@ export function Menu() {
           <DropdownMenuGroup>
             <DropdownMenuItem
               className="cursor-pointer"
-              onClick={() => alert("download")}
+              onClick={downloadGraph}
             >
               <Download className="mr-2 h-4 w-4" />
               <span>Download graph</span>
@@ -57,16 +91,16 @@ export function Menu() {
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
                 <DropdownMenuSubContent>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme("light")}>
                     <Sun className="mr-2 h-4 w-4" />
                     <span>Light</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme("dark")}>
                     <Moon className="mr-2 h-4 w-4" />
                     <span>Dark</span>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme("system")}>
                     <SunMoon className="mr-2 h-4 w-4" />
                     <span>Auto</span>
                   </DropdownMenuItem>
