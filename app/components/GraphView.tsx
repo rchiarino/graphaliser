@@ -25,6 +25,7 @@ import {
 
 import { Menu } from "./ui/Menu";
 import { useTheme } from "next-themes";
+import ToggleEditor from "./ui/ToggleEditor";
 
 const elk = new ELK();
 
@@ -186,52 +187,8 @@ function LayoutFlow({
           proOptions={{ hideAttribution: true }}
         >
           <Menu />
+          <ToggleEditor isOpen={editor.isShown} onClick={editor.toggleEditor} />
           <Background />
-
-          <Controls
-            className="relative"
-            position="top-left"
-            showZoom={false}
-            showFitView={false}
-            showInteractive={false}
-          >
-            <ControlButton
-              title={editor.isShown ? "Hide Editor" : "Show Editor"}
-              onClick={editor.toggleEditor}
-            >
-              {editor.isShown ? (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={4}
-                  stroke="currentColor"
-                  className="size-6 !fill-none"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M15.75 19.5 8.25 12l7.5-7.5"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={4}
-                  stroke="currentColor"
-                  className="size-6 !fill-none"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="m8.25 4.5 7.5 7.5-7.5 7.5"
-                  />
-                </svg>
-              )}
-            </ControlButton>
-          </Controls>
         </ReactFlow>
       </ContextMenuTrigger>
       <ContextMenuContent>
