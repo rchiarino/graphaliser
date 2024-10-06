@@ -226,9 +226,6 @@ function LayoutFlow({
         alert("Pane context menu");
       }}
       onEdgesChange={onEdgesChange}
-      onEdgeContextMenu={() => {
-        alert("Edge context menu");
-      }}
       proOptions={{ hideAttribution: true }}
     >
       <Menu />
