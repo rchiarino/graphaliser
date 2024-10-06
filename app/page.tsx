@@ -12,7 +12,6 @@ import { parseProgram } from "./utils/editorToAST";
 import { Graph, generateGraph } from "./utils/astParser";
 import LayoutFlow from "./components/GraphView";
 import { Toaster } from "sonner";
-import { toast } from "sonner";
 import { useTheme } from "next-themes";
 
 export default function Home() {

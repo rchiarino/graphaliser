@@ -130,10 +130,11 @@ function LayoutFlow({
 
   const onConnect = useCallback(
     (params: Connection) => {
-      const newEdge = {
+      const newEdge: Edge = {
         id: `${params.source}-${params.target}`,
         source: params.source,
         target: params.target,
+        markerEnd: { type: MarkerType.Arrow },
       };
 
       const { isValid, message, reason } = isValidNewEdge(
@@ -143,7 +144,7 @@ function LayoutFlow({
       );
 
       if (isValid) {
-        setEdges((eds) => addEdge(params, eds));
+        setEdges((eds) => addEdge(newEdge, eds));
       } else {
         console.warn(reason);
         toast.warning(message, { description: reason });
