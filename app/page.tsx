@@ -14,6 +14,7 @@ import LayoutFlow from "./components/GraphView";
 import { Toaster } from "sonner";
 import { useTheme } from "next-themes";
 import BetaAlert from "./components/BetaAlert";
+import EditorControls from "./components/ui/EditorControls";
 
 export default function Home() {
   const [nodes, setNodes] = useNodesState(defaultGraph.initialNodes);
@@ -93,6 +94,11 @@ export default function Home() {
               onChange={(value) => {
                 setText(value!);
               }}
+            />
+            <EditorControls
+              code={code}
+              defaultCode={defaultValue}
+              setStoredEditorValue={setText}
             />
           </div>
         )}
