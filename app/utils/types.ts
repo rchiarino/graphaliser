@@ -24,3 +24,8 @@ export interface CodeError {
   startColumn: number;
   endColumn: number;
 }
+
+export interface GraphMenuProps {
+  reRender: boolean;
+  setReRender(value: boolean): void;
+}
