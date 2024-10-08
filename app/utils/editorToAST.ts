@@ -61,13 +61,15 @@ function tokenize(input: string): Token[] {
 class Parser {
   private tokens: Token[];
   private current: number = 0;
+  private usedIdentifiers: Set<string> = new Set();
 
   constructor(tokens: Token[]) {
     this.tokens = tokens;
   }
 
   parse(): ASTNode {
-    return this.parseBlock();
+    const ast = this.parseBlock();
+    return ast;
   }
 
   private parseBlock(): ASTNode {
@@ -81,6 +83,10 @@ class Parser {
         return this.parseParallel();
       case TokenType.IDENTIFIER:
         this.advance();
+        if (this.usedIdentifiers.has(token.value)) {
+          throw new Error(`Identifier '${token.value}' has already been used`);
+        }
+        this.usedIdentifiers.add(token.value);
         return createValueNode(token.value);
       default:
         throw new Error(`Unexpected token: ${token.value}`);
