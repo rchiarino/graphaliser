@@ -14,7 +14,7 @@ import LayoutFlow from "./components/GraphView";
 import { Toaster } from "sonner";
 import { useTheme } from "next-themes";
 import BetaAlert from "./components/BetaAlert";
-import EditorControls from "./components/ui/EditorControls";
+import EditorControls from "./components/EditorControls";
 
 export default function Home() {
   const [nodes, setNodes] = useNodesState(defaultGraph.initialNodes);
