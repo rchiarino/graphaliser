@@ -13,6 +13,8 @@ import { Graph, generateGraph } from "./utils/astParser";
 import LayoutFlow from "./components/GraphView";
 import { Toaster } from "sonner";
 import { useTheme } from "next-themes";
+import BetaAlert from "./components/BetaAlert";
+import EditorControls from "./components/EditorControls";
 
 export default function Home() {
   const [nodes, setNodes] = useNodesState(defaultGraph.initialNodes);
@@ -93,6 +95,11 @@ export default function Home() {
                 setText(value!);
               }}
             />
+            <EditorControls
+              code={code}
+              defaultCode={defaultValue}
+              setStoredEditorValue={setText}
+            />
           </div>
         )}
         <div className={editorVisible ? "col-span-2" : "col-span-full"}>
@@ -102,6 +109,7 @@ export default function Home() {
         </div>
       </section>
       <Toaster theme={theme.resolvedTheme === "light" ? "light" : "dark"} />
+      <BetaAlert />
     </main>
   );
 }
