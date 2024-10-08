@@ -4,13 +4,15 @@ import { useEffect } from "react";
 
 import * as cobeginEndLanguage from "../language/cobegin-end/cobegin-end";
 import { useTheme } from "next-themes";
+import { CodeError } from "../utils/types";
 
 export interface EditorViewProps {
   value: string;
   onChange: (text?: string) => void;
+  errors: CodeError[];
 }
 
-function EditorView({ value, onChange }: EditorViewProps) {
+function EditorView({ value, onChange, errors }: EditorViewProps) {
   const monaco = useMonaco();
   const theme = useTheme();
 
@@ -27,6 +29,23 @@ function EditorView({ value, onChange }: EditorViewProps) {
       );
     }
   }, [monaco]);
+
+  useEffect(() => {
+    if (!monaco) return;
+    const squigglyErrors = errors.map((error) => ({
+      message: error.reason,
+      startLineNumber: error.row,
+      endLineNumber: error.row,
+      startColumn: error.startColumn,
+      endColumn: error.endColumn + 1,
+      severity: monaco.MarkerSeverity.Error,
+    }));
+    console.log(squigglyErrors);
+
+    const [model] = monaco.editor.getModels();
+
+    monaco.editor.setModelMarkers(model!, "cobegin-end", squigglyErrors);
+  }, [monaco, errors]);
 
   return (
     <Editor

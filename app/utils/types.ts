@@ -17,3 +17,10 @@ export interface ContextMenuProps {
   right: string | number;
   bottom: string | number;
 }
+
+export interface CodeError {
+  reason: string;
+  row: number;
+  startColumn: number;
+  endColumn: number;
+}
