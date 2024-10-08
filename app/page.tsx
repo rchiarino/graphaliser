@@ -1,6 +1,6 @@
 "use client";
 import "@xyflow/react/dist/style.css";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNodesState, useEdgesState, ReactFlowProvider } from "@xyflow/react";
 import { useDebounce, useLocalStorage } from "react-use";
 import { Node, Edge } from "@xyflow/react";

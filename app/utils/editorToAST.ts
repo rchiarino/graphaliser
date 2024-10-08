@@ -128,11 +128,6 @@ function tokenize(input: string): Token[] {
   return tokens;
 }
 
-interface IdentifierUse {
-  value: string;
-  line: number;
-}
-
 class Parser {
   private tokens: Token[];
   private current: number = 0;
@@ -141,7 +136,7 @@ class Parser {
   constructor(tokens: Token[]) {
     this.tokens = tokens;
   }
-  // Add the getLastToken method
+
   private getLastToken(): Token | null {
     return this.tokens.length > 0 ? this.tokens[this.tokens.length - 1] : null;
   }

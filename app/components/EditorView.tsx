@@ -27,6 +27,21 @@ function EditorView({ value, onChange, errors }: EditorViewProps) {
         "cobegin-end",
         cobeginEndLanguage.language
       );
+
+      monaco.languages.registerCompletionItemProvider("cobegin-end", {
+        provideCompletionItems: () => {
+          const suggestions = [
+            ...cobeginEndLanguage.language.keywords.map((keyword: string) => {
+              return {
+                label: keyword,
+                kind: monaco.languages.CompletionItemKind.Keyword,
+                insertText: keyword,
+              };
+            }),
+          ];
+          return { suggestions };
+        },
+      });
     }
   }, [monaco]);
 
