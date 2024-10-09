@@ -27,6 +27,7 @@ import ToggleEditor from "./ToggleEditor";
 import NodeContextMenu from "./NodeContextMenu";
 import { isValidNewEdge } from "../utils/edgeValidator";
 import { toast } from "sonner";
+import { useLocalStorage } from "react-use";
 
 const elk = new ELK();
 
@@ -82,7 +83,10 @@ function LayoutFlow({
   const emptyEdges: Edge[] = [];
   const [nodes, setNodes, onNodesChange] = useNodesState(emptyNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(emptyEdges);
-  const [reRenderEnabled, setReRenderEnabled] = useState(false);
+  const [reRenderEnabled, setReRenderEnabled] = useLocalStorage(
+    "graph.reRender",
+    false
+  );
   const { fitView, screenToFlowPosition } = useReactFlow();
   const [nodeMenu, setNodeMenu] = useState(null);
   const ref = useRef(null);
@@ -233,7 +237,10 @@ function LayoutFlow({
       }}
       proOptions={{ hideAttribution: true }}
     >
-      <Menu reRender={reRenderEnabled} setReRender={setReRenderEnabled} />
+      <Menu
+        reRender={reRenderEnabled ?? false}
+        setReRender={setReRenderEnabled}
+      />
       <ToggleEditor isOpen={editor.isShown} onClick={editor.toggleEditor} />
       {
         // @ts-expect-error - the object is not null is a valid value
