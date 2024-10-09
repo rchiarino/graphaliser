@@ -49,7 +49,7 @@ function NodeContextMenu({ id, top, left, right, bottom }: ContextMenuProps) {
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="id" className="text-right">
-              ID
+              Id:
             </Label>
             <Input id="id" defaultValue="Node NAME" className="col-span-3" />
           </div>
