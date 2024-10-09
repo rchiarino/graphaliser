@@ -98,6 +98,20 @@ export function Menu({ reRender, setReRender }: GraphMenuProps) {
                 onCheckedChange={() => setReRender(!reRender)}
               />
             </DropdownMenuItem>
+            <DropdownMenuItem
+              disabled
+              onClick={(event) => {
+                event.preventDefault();
+              }}
+              title="Display bounding boxes around structures"
+            >
+              <span>Show bounding boxes</span>
+              <Switch
+                className="ml-auto"
+                checked={false}
+                onCheckedChange={() => alert("Not implemented yet")}
+              />
+            </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
