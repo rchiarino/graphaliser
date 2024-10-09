@@ -235,6 +235,8 @@ function LayoutFlow({
       onEdgeContextMenu={(event) => {
         event.preventDefault();
       }}
+      nodesFocusable={false}
+      edgesFocusable={false}
       proOptions={{ hideAttribution: true }}
     >
       <Menu
