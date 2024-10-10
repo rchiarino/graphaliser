@@ -121,7 +121,7 @@ function LayoutFlow({
       // Calculate position of the context menu. We want to make sure it doesn't get positioned off-screen.
       setNodeMenu({
         // @ts-expect-error - is part of ContextMenuProps
-        id: node.id,
+        node: graph.nodes.find((n) => n.id === node.id),
         top: event.clientY < pane.height - 200 && event.clientY,
         left: event.clientX < pane.width - 200 && translatedClientX,
         right:
@@ -130,7 +130,7 @@ function LayoutFlow({
           event.clientY >= pane.height - 200 && pane.height - event.clientY,
       });
     },
-    [setNodeMenu]
+    [setNodeMenu, graph]
   );
 
   const onLayout = useCallback(() => {
