@@ -27,6 +27,7 @@ import ToggleEditor from "./ToggleEditor";
 import NodeContextMenu from "./NodeContextMenu";
 import { isValidNewEdge } from "../utils/edgeValidator";
 import { toast } from "sonner";
+import { useLocalStorage } from "react-use";
 
 const elk = new ELK();
 
@@ -82,9 +83,29 @@ function LayoutFlow({
   const emptyEdges: Edge[] = [];
   const [nodes, setNodes, onNodesChange] = useNodesState(emptyNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(emptyEdges);
+  const [reRenderEnabled, setReRenderEnabled] = useLocalStorage(
+    "graph.reRender",
+    false
+  );
   const { fitView, screenToFlowPosition } = useReactFlow();
   const [nodeMenu, setNodeMenu] = useState(null);
   const ref = useRef(null);
+
+  const reRender = useCallback(
+    (nodes: Node[], edges: Edge[]) => {
+      //@ts-expect-error - TODO:Need to implement a encoder for the edges
+      getLayoutedElements(nodes, edges, elkOptions).then(
+        // @ts-expect-error layoutedNodes and layoutedEdges are empty if the graph is empty
+        ({ nodes: layoutedNodes, edges: layoutedEdges }) => {
+          setNodes(layoutedNodes);
+          setEdges(layoutedEdges);
+
+          window.requestAnimationFrame(() => fitView());
+        }
+      );
+    },
+    [setNodes, setEdges, fitView]
+  );
 
   const onNodeContextMenu = useCallback(
     (event: MouseEvent, node: Node) => {
@@ -115,18 +136,8 @@ function LayoutFlow({
   const onLayout = useCallback(() => {
     const ns = graph.nodes;
     const es = graph.edges;
-
-    //@ts-expect-error - TODO:Need to implement a encoder for the edges
-    getLayoutedElements(ns, es, elkOptions).then(
-      // @ts-expect-error layoutedNodes and layoutedEdges are empty if the graph is empty
-      ({ nodes: layoutedNodes, edges: layoutedEdges }) => {
-        setNodes(layoutedNodes);
-        setEdges(layoutedEdges);
-
-        window.requestAnimationFrame(() => fitView());
-      }
-    );
-  }, []);
+    reRender(ns, es);
+  }, [reRender, graph]);
 
   const onConnect = useCallback(
     (params: Connection) => {
@@ -155,9 +166,7 @@ function LayoutFlow({
 
   const addNode = useCallback(
     (event: MouseEvent | TouchEvent, connectionState: FinalConnectionState) => {
-      // when a connection is dropped on the pane it's not valid
       if (!connectionState.isValid) {
-        // we need to remove the wrapper bounds, in order to get the correct position
         const id = `${nodes.length + 1}`;
         const { clientX, clientY } =
           "changedTouches" in event ? event.changedTouches[0] : event;
@@ -181,18 +190,15 @@ function LayoutFlow({
           markerEnd: { type: MarkerType.Arrow },
         });
 
-        //@ts-expect-error - TODO:Need to implement a encoder for the edges
-        getLayoutedElements(updatedNodes, updatedEdges, elkOptions).then(
-          // @ts-expect-error layoutedNodes and layoutedEdges are empty if the graph is empty
-          ({ nodes: layoutedNodes, edges: layoutedEdges }) => {
-            setNodes(layoutedNodes);
-            setEdges(layoutedEdges);
-          }
-        );
-        window.requestAnimationFrame(() => fitView());
+        if (reRenderEnabled) {
+          reRender(updatedNodes, updatedEdges);
+        } else {
+          setNodes(updatedNodes);
+          setEdges(updatedEdges);
+        }
       }
     },
-    [screenToFlowPosition, nodes, edges]
+    [screenToFlowPosition, nodes, edges, reRender, reRenderEnabled]
   );
 
   useLayoutEffect(() => {
@@ -201,16 +207,8 @@ function LayoutFlow({
 
   //Re-layout when the graph changes
   useEffect(() => {
-    //@ts-expect-error - TODO:Need to implement a encoder for the edges
-    getLayoutedElements(graph.nodes, graph.edges, elkOptions).then(
-      // @ts-expect-error layoutedNodes and layoutedEdges are empty if the graph is empty
-      ({ nodes: layoutedNodes, edges: layoutedEdges }) => {
-        setNodes(layoutedNodes);
-        setEdges(layoutedEdges);
-      }
-    );
-    window.requestAnimationFrame(() => fitView());
-  }, [graph]);
+    reRender(graph.nodes, graph.edges);
+  }, [graph, reRender]);
 
   // Close the context menu if it's open whenever the window is clicked.
   const onPaneClick = useCallback(() => setNodeMenu(null), [setNodeMenu]);
@@ -237,9 +235,14 @@ function LayoutFlow({
       onEdgeContextMenu={(event) => {
         event.preventDefault();
       }}
+      nodesFocusable={false}
+      edgesFocusable={false}
       proOptions={{ hideAttribution: true }}
     >
-      <Menu />
+      <Menu
+        reRender={reRenderEnabled ?? false}
+        setReRender={setReRenderEnabled}
+      />
       <ToggleEditor isOpen={editor.isShown} onClick={editor.toggleEditor} />
       {
         // @ts-expect-error - the object is not null is a valid value

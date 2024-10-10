@@ -3,6 +3,7 @@ import { Download, Moon, Palette, Sun, SunMoon } from "lucide-react";
 import { Button } from "@/app/components/ui/button";
 import {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
@@ -23,6 +24,8 @@ import {
 } from "@xyflow/react";
 
 import { useTheme } from "next-themes";
+import { GraphMenuProps } from "../utils/types";
+import { Switch } from "./ui/switch";
 
 const downloadImage = (dataUrl: string) => {
   const a = document.createElement("a");
@@ -32,8 +35,8 @@ const downloadImage = (dataUrl: string) => {
   a.click();
 };
 
-export function Menu() {
-  const { setTheme } = useTheme();
+export function Menu({ reRender, setReRender }: GraphMenuProps) {
+  const { setTheme, theme } = useTheme();
   const { getNodes } = useReactFlow();
 
   const downloadGraph = () => {
@@ -80,6 +83,37 @@ export function Menu() {
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
+          <DropdownMenuLabel>Options</DropdownMenuLabel>
+          <DropdownMenuGroup>
+            <DropdownMenuItem
+              onClick={(event) => {
+                event.preventDefault();
+              }}
+              title="Rearange the graph to prevent overlapping nodes"
+            >
+              <span>Auto layout nodes</span>
+              <Switch
+                className="ml-auto"
+                checked={reRender}
+                onCheckedChange={() => setReRender(!reRender)}
+              />
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              disabled
+              onClick={(event) => {
+                event.preventDefault();
+              }}
+              title="Display bounding boxes around structures"
+            >
+              <span>Show bounding boxes</span>
+              <Switch
+                className="ml-auto"
+                checked={false}
+                onCheckedChange={() => alert("Not implemented yet")}
+              />
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+          <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
@@ -88,28 +122,31 @@ export function Menu() {
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
                 <DropdownMenuSubContent>
-                  <DropdownMenuItem
+                  <DropdownMenuCheckboxItem
+                    checked={theme === "light"}
                     onClick={() => setTheme("light")}
                     className="cursor-pointer"
                   >
                     <Sun className="mr-2 h-4 w-4" />
                     <span>Light</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
+                  </DropdownMenuCheckboxItem>
+                  <DropdownMenuCheckboxItem
+                    checked={theme === "dark"}
                     onClick={() => setTheme("dark")}
                     className="cursor-pointer"
                   >
                     <Moon className="mr-2 h-4 w-4" />
                     <span>Dark</span>
-                  </DropdownMenuItem>
+                  </DropdownMenuCheckboxItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem
+                  <DropdownMenuCheckboxItem
+                    checked={theme === "system"}
                     onClick={() => setTheme("system")}
                     className="cursor-pointer"
                   >
                     <SunMoon className="mr-2 h-4 w-4" />
                     <span>Auto</span>
-                  </DropdownMenuItem>
+                  </DropdownMenuCheckboxItem>
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
             </DropdownMenuSub>
