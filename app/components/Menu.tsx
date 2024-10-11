@@ -37,34 +37,60 @@ const downloadImage = (dataUrl: string) => {
 
 export function Menu({ reRender, setReRender }: GraphMenuProps) {
   const { setTheme, theme } = useTheme();
-  const { getNodes } = useReactFlow();
+  const { getNodes, getEdges, setNodes, setEdges } = useReactFlow();
 
   const downloadGraph = () => {
-    const nodesBounds = getNodesBounds(getNodes());
+    const nodes = getNodes();
+    const edges = getEdges();
+
+    const originalNodes = nodes.map((node) => ({ ...node }));
+    const originalEdges = edges.map((edge) => ({ ...edge }));
+
+    const cleanNodes = nodes.map((node) => ({
+      ...node,
+      selected: false,
+    }));
+
+    const cleanEdges = edges.map((edge) => ({
+      ...edge,
+      selected: false,
+    }));
+
+    setNodes(cleanNodes);
+    setEdges(cleanEdges);
+
+    const nodesBounds = getNodesBounds(cleanNodes);
     const { height: imageHeight, width: imageWidth } = nodesBounds;
     const transform = getViewportForBounds(
       nodesBounds,
       imageWidth,
       imageHeight,
       1,
-      4,
-      2
+      2,
+      0.5
     );
-    const viewport: HTMLDivElement = document.querySelector(
-      ".react-flow__viewport"
-    )!;
 
-    toPng(viewport, {
-      width: imageWidth,
-      height: imageHeight,
-      style: {
-        width: `${imageWidth}`,
-        height: `${imageHeight}`,
-        transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.zoom})`,
-      },
-    })
-      .then(downloadImage)
-      .catch(console.error);
+    const viewport: HTMLElement | null = document.querySelector(
+      ".react-flow__viewport"
+    );
+
+    if (viewport) {
+      toPng(viewport, {
+        width: imageWidth,
+        height: imageHeight,
+        style: {
+          width: `${imageWidth}`,
+          height: `${imageHeight}`,
+          transform: `translate(${transform.x}px, ${transform.y}px) scale(${transform.zoom})`,
+        },
+      })
+        .then(downloadImage)
+        .catch(console.error)
+        .finally(() => {
+          setNodes(originalNodes);
+          setEdges(originalEdges);
+        });
+    }
   };
   return (
     <div className="z-[4] absolute top-4 right-4 ">
