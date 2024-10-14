@@ -42,6 +42,52 @@ function EditorView({ value, onChange, errors }: EditorViewProps) {
           return { suggestions };
         },
       });
+
+      // Register a completion item provider for the new language
+      monaco.languages.registerCompletionItemProvider("cobegin-end", {
+        provideCompletionItems: (model, position) => {
+          const word = model.getWordUntilPosition(position);
+          const range = {
+            startLineNumber: position.lineNumber,
+            endLineNumber: position.lineNumber,
+            startColumn: word.startColumn,
+            endColumn: word.endColumn,
+          };
+          const suggestions = [
+            {
+              label: "BEGIN END",
+              kind: monaco.languages.CompletionItemKind.Snippet,
+              insertText: [
+                "BEGIN",
+                "\t${1:Node}",
+                "END"
+              ].join("\n"),
+              insertTextRules:
+                monaco.languages.CompletionItemInsertTextRule
+                  .InsertAsSnippet,
+              documentation: "BEGIN and END a block of code",
+              range: range,
+            },
+            {
+              label: "COBEGIN COEND",
+              kind: monaco.languages.CompletionItemKind.Snippet,
+              insertText: [
+                "COBEGIN",
+                "\t${1:Node_1}",
+                "\t${2:Node_2}",
+                "COEND"
+              ].join("\n"),
+              insertTextRules:
+                monaco.languages.CompletionItemInsertTextRule
+                  .InsertAsSnippet,
+              documentation: "COBEGIN and COEND a block of code",
+              range: range,
+            },
+          ];
+          return { suggestions: suggestions };
+        },
+      });
+
     }
   }, [monaco]);
 
