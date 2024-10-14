@@ -46,14 +46,14 @@ function EditorView({ value, onChange, errors }: EditorViewProps) {
       // Register a completion item provider for the new language
       monaco.languages.registerCompletionItemProvider("cobegin-end", {
         provideCompletionItems: (model, position) => {
-          var word = model.getWordUntilPosition(position);
-          var range = {
+          let word = model.getWordUntilPosition(position);
+          let range = {
             startLineNumber: position.lineNumber,
             endLineNumber: position.lineNumber,
             startColumn: word.startColumn,
             endColumn: word.endColumn,
           };
-          var suggestions = [
+          let suggestions = [
             {
               label: "BEGIN END",
               kind: monaco.languages.CompletionItemKind.Snippet,
