@@ -11,7 +11,7 @@ export interface EditorConfigProps {
 }
 
 export interface ContextMenuProps {
-  node: Node;
+  node?: Node;
   top: string | number;
   left: string | number;
   right: string | number;
