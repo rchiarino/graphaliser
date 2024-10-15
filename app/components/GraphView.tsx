@@ -198,89 +198,133 @@ function LayoutFlow({
     [nodes, edges]
   );
 
-
-  function determineIfParallel(fromNode: Node, nodes: Node[], edges: Edge[]): boolean {
-    const existingOutgoingEdges = edges.filter(edge => edge.source === fromNode.id);
+  function determineIfParallel(
+    fromNode: Node,
+    nodes: Node[],
+    edges: Edge[]
+  ): boolean {
+    const existingOutgoingEdges = edges.filter(
+      (edge) => edge.source === fromNode.id
+    );
     return existingOutgoingEdges.length > 0;
   }
 
-function findLastNodeInSequence(startNodeId: string, edges: Edge[]): string {
-  let currentNodeId = startNodeId;
-  let lastNodeId = startNodeId;
+  function findLastNodeInSequence(startNodeId: string, edges: Edge[]): string {
+    let currentNodeId = startNodeId;
+    let lastNodeId = startNodeId;
 
-  while (currentNodeId) {
-    const nextEdge = edges.find(edge => edge.source === currentNodeId);
-    if (nextEdge) {
-      lastNodeId = currentNodeId;
-      currentNodeId = nextEdge.target;
-    } else {
-      break;
+    while (currentNodeId) {
+      const nextEdge = edges.find((edge) => edge.source === currentNodeId);
+      if (nextEdge) {
+        lastNodeId = currentNodeId;
+        currentNodeId = nextEdge.target;
+      } else {
+        break;
+      }
     }
-  }
 
-  return lastNodeId;
-}
+    return lastNodeId;
+  }
 
   const addNode = useCallback(
     (event: MouseEvent | TouchEvent, connectionState: FinalConnectionState) => {
       if (!connectionState.isValid) {
-        const upperCaseAlp = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
+        const upperCaseAlp = [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F",
+          "G",
+          "H",
+          "I",
+          "J",
+          "K",
+          "L",
+          "M",
+          "N",
+          "O",
+          "P",
+          "Q",
+          "R",
+          "S",
+          "T",
+          "U",
+          "V",
+          "W",
+          "X",
+          "Y",
+          "Z",
+        ];
         const id = `${upperCaseAlp[nodes.length]}`;
         const { clientX, clientY } =
-        "changedTouches" in event ? event.changedTouches[0] : event;
-      const newNode: Node = {
-        id,
-        data: { label: `${id}` },
-        width: 50,
-        height: 50,
-        position: screenToFlowPosition({
-          x: clientX,
-          y: clientY,
-        }),
-        origin: [0.5, 0.0],
-      };
-
-      const isParallel = determineIfParallel(connectionState.fromNode!, nodes, edges);
-
-      const updatedNodes = nodes.concat(newNode);
-      
-      let updatedEdges = [...edges];
-
-      if (isParallel) {
-        const newEdge = {
-          id: `e${connectionState.fromNode!.id}-${id}`,
-          source: connectionState.fromNode!.id,
-          target: id,
-          markerEnd: { type: MarkerType.Arrow },
+          "changedTouches" in event ? event.changedTouches[0] : event;
+        const newNode: Node = {
+          id,
+          data: { label: `${id}` },
+          width: 50,
+          height: 50,
+          position: screenToFlowPosition({
+            x: clientX,
+            y: clientY,
+          }),
+          origin: [0.5, 0.0],
         };
-        updatedEdges.push(newEdge);
-      } else {
-        const lastNodeInSequence = findLastNodeInSequence(connectionState.fromNode!.id, edges);
-        const newEdge = {
-          id: `e${lastNodeInSequence}-${id}`,
-          source: lastNodeInSequence,
-          target: id,
-          markerEnd: { type: MarkerType.Arrow },
-        };
-        updatedEdges.push(newEdge);
-      }
 
-      const currentAST = parseProgram(currentCode);
-      const updatedAST = addNodeToAST(currentAST, id, connectionState.fromNode!.id, isParallel);
-      const updatedCode = generateCodeFromAST(updatedAST);
+        const isParallel = determineIfParallel(
+          connectionState.fromNode!,
+          nodes,
+          edges
+        );
 
-      if (reRenderEnabled) {
-        reRender(updatedNodes, updatedEdges);
-      } else {
-        setNodes(updatedNodes);
-        setEdges(updatedEdges);
-        setCurrentCode(updatedCode);
+        const updatedNodes = nodes.concat(newNode);
+
+        const updatedEdges = [...edges];
+
+        if (isParallel) {
+          const newEdge = {
+            id: `e${connectionState.fromNode!.id}-${id}`,
+            source: connectionState.fromNode!.id,
+            target: id,
+            markerEnd: { type: MarkerType.Arrow },
+          };
+          updatedEdges.push(newEdge);
+        } else {
+          const lastNodeInSequence = findLastNodeInSequence(
+            connectionState.fromNode!.id,
+            edges
+          );
+          const newEdge = {
+            id: `e${lastNodeInSequence}-${id}`,
+            source: lastNodeInSequence,
+            target: id,
+            markerEnd: { type: MarkerType.Arrow },
+          };
+          updatedEdges.push(newEdge);
+        }
+
+        const currentAST = parseProgram(currentCode);
+        const updatedAST = addNodeToAST(
+          currentAST,
+          id,
+          connectionState.fromNode!.id,
+          isParallel
+        );
+        const updatedCode = generateCodeFromAST(updatedAST);
+
+        if (reRenderEnabled) {
+          reRender(updatedNodes, updatedEdges);
+        } else {
+          setNodes(updatedNodes);
+          setEdges(updatedEdges);
+          setCurrentCode(updatedCode);
+        }
       }
-    }
-  },
+    },
     [screenToFlowPosition, nodes, edges, reRender, reRenderEnabled, currentCode]
   );
-  
+
   useLayoutEffect(() => {
     onLayout();
   }, []);
@@ -335,10 +379,10 @@ function findLastNodeInSequence(startNodeId: string, edges: Edge[]): string {
         // @ts-expect-error - the object is not null is a valid value
         nodeMenu && <NodeContextMenu {...nodeMenu} />
       }
-      {
+      {panelMenu && (
         // @ts-expect-error - the object is not null is a valid value
-        panelMenu && <ViewContexMenu onPanelClick={onPaneClick} {...panelMenu} />
-      }
+        <ViewContexMenu onPanelClick={onPaneClick} {...panelMenu} />
+      )}
       <Background />
     </ReactFlow>
   );

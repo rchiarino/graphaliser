@@ -107,7 +107,6 @@ function handleParallelBlock(
   return endNodes;
 }
 
-
 function generateCodeFromAST(ast: ASTNode, indent: string = ""): string {
   switch (ast.type) {
     case NodeType.VALUE:
@@ -116,17 +115,20 @@ function generateCodeFromAST(ast: ASTNode, indent: string = ""): string {
       if (ast.children.length === 1) {
         return generateCodeFromAST(ast.children[0], indent);
       }
-      return `${indent}BEGIN\n${ast.children.map(child => generateCodeFromAST(child, indent + "  ")).join("\n")}\n${indent}END`;
+      return `${indent}BEGIN\n${ast.children
+        .map((child) => generateCodeFromAST(child, indent + "  "))
+        .join("\n")}\n${indent}END`;
     case NodeType.PAR:
       if (ast.children.length === 1) {
         return generateCodeFromAST(ast.children[0], indent);
       }
-      return `${indent}COBEGIN\n${ast.children.map(child => generateCodeFromAST(child, indent + "  ")).join("\n")}\n${indent}COEND`;
+      return `${indent}COBEGIN\n${ast.children
+        .map((child) => generateCodeFromAST(child, indent + "  "))
+        .join("\n")}\n${indent}COEND`;
     default:
-      throw new Error(`Unexpected node type: ${(ast as any).type}`);
+      throw new Error(`Unexpected node type: ${ast}`);
   }
 }
-
 
 export {
   NodeType,
