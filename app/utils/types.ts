@@ -6,12 +6,12 @@ export interface GraphViewProps {
 }
 
 export interface EditorConfigProps {
-  toggleEditor(): void;
+  toggleEditor(): Promise<void>;
   isShown: boolean;
 }
 
 export interface ContextMenuProps {
-  node: Node;
+  node?: Node;
   top: string | number;
   left: string | number;
   right: string | number;

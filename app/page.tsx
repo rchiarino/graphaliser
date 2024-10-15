@@ -31,7 +31,7 @@ export default function Home() {
 
   const [code, setText] = useState(storedEditorValue!);
 
-  const toggleEditor = () => {
+  const toggleEditor = async () => {
     setEditorVisible((state) => !state);
   };
 
@@ -118,7 +118,7 @@ export default function Home() {
         )}
         <div className={editorVisible ? "col-span-2" : "col-span-full"}>
           <ReactFlowProvider>
-            <LayoutFlow graph={graphConfig} editor={EditorConfig} />
+            <LayoutFlow setCurrentCode={setText} currentCode={code} graph={graphConfig} editor={EditorConfig} />
           </ReactFlowProvider>
         </div>
       </section>

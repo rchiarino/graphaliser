@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { Check, Copy, RotateCcw } from "lucide-react";
+import { Check, Copy, RotateCcw, TextQuote } from "lucide-react";
 
 function EditorControls({
   code,
@@ -25,6 +25,14 @@ function EditorControls({
 
   return (
     <div className="absolute bottom-4 flex justify-center items-center w-1/3">
+      <Button
+        variant="outline"
+        className="mr-4 transition-all duration-300 ease-in-out"
+        disabled
+      >
+        <TextQuote className="mr-2 h-4 w-4" />
+        Format
+      </Button>
       <Button
         onClick={handleCopyCode}
         variant="outline"

@@ -107,6 +107,29 @@ function handleParallelBlock(
   return endNodes;
 }
 
+function generateCodeFromAST(ast: ASTNode, indent: string = ""): string {
+  switch (ast.type) {
+    case NodeType.VALUE:
+      return `${indent}${ast.value}`;
+    case NodeType.SEQ:
+      if (ast.children.length === 1) {
+        return generateCodeFromAST(ast.children[0], indent);
+      }
+      return `${indent}BEGIN\n${ast.children
+        .map((child) => generateCodeFromAST(child, indent + "  "))
+        .join("\n")}\n${indent}END`;
+    case NodeType.PAR:
+      if (ast.children.length === 1) {
+        return generateCodeFromAST(ast.children[0], indent);
+      }
+      return `${indent}COBEGIN\n${ast.children
+        .map((child) => generateCodeFromAST(child, indent + "  "))
+        .join("\n")}\n${indent}COEND`;
+    default:
+      throw new Error(`Unexpected node type: ${ast}`);
+  }
+}
+
 export {
   NodeType,
   type ASTNode,
@@ -114,6 +137,7 @@ export {
   type StructureNode,
   Graph,
   generateGraph,
+  generateCodeFromAST,
   createValueNode,
   createStructureNode,
 };
