@@ -1,5 +1,4 @@
 import { toPng } from "html-to-image";
-import React from "react";
 import {
     Node,
     Edge,
