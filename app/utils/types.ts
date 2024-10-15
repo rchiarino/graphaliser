@@ -6,7 +6,7 @@ export interface GraphViewProps {
 }
 
 export interface EditorConfigProps {
-  toggleEditor(): void;
+  toggleEditor(): Promise<void>;
   isShown: boolean;
 }
 

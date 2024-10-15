@@ -111,27 +111,28 @@ function LayoutFlow({
 
   const onPaneContextMenu = useCallback(
     (event: MouseEvent | React.MouseEvent<Element, MouseEvent>) => {
-    event.preventDefault();
+      event.preventDefault();
 
-    //@ts-expect-error - workarround needed
-    const pane = ref.current?.getBoundingClientRect();
+      //@ts-expect-error - workarround needed
+      const pane = ref.current?.getBoundingClientRect();
 
-    // translate the position of the context menu if the editor is open or the window is resized
-    const widthDiff = window.innerWidth - pane.width;
-    const translatedClientX = event.clientX - widthDiff;
+      // translate the position of the context menu if the editor is open or the window is resized
+      const widthDiff = window.innerWidth - pane.width;
+      const translatedClientX = event.clientX - widthDiff;
 
-    // Calculate position of the context menu. We want to make sure it doesn't get positioned off-screen.
-    setPanelMenu({
-      // @ts-expect-error - is part of ContextMenuProps
-      top: event.clientY < pane.height - 200 && event.clientY,
-      left: event.clientX < pane.width - 200 && translatedClientX,
-      right:
-        event.clientX >= pane.width - 200 && pane.width - translatedClientX,
-      bottom:
-        event.clientY >= pane.height - 200 && pane.height - event.clientY,
-    });
-  }, [setPanelMenu]
-);
+      // Calculate position of the context menu. We want to make sure it doesn't get positioned off-screen.
+      setPanelMenu({
+        // @ts-expect-error - is part of ContextMenuProps
+        top: event.clientY < pane.height - 200 && event.clientY,
+        left: event.clientX < pane.width - 200 && translatedClientX,
+        right:
+          event.clientX >= pane.width - 200 && pane.width - translatedClientX,
+        bottom:
+          event.clientY >= pane.height - 200 && pane.height - event.clientY,
+      });
+    },
+    [setPanelMenu]
+  );
 
   const onNodeContextMenu = useCallback(
     (event: MouseEvent, node: Node) => {
@@ -238,8 +239,8 @@ function LayoutFlow({
 
   // Close the context menu if it's open whenever the window is clicked.
   const onPaneClick = useCallback(() => {
-    setNodeMenu(null) 
-    setPanelMenu(null)
+    setNodeMenu(null);
+    setPanelMenu(null);
   }, [setNodeMenu, setPanelMenu]);
 
   return (
@@ -269,7 +270,14 @@ function LayoutFlow({
         reRender={reRenderEnabled ?? false}
         setReRender={setReRenderEnabled}
       />
-      <ToggleEditor isOpen={editor.isShown} onClick={editor.toggleEditor} />
+      <ToggleEditor
+        isOpen={editor.isShown}
+        onClick={() => {
+          editor.toggleEditor().then(() => {
+            fitView();
+          });
+        }}
+      />
       {
         // @ts-expect-error - the object is not null is a valid value
         nodeMenu && <NodeContextMenu {...nodeMenu} />

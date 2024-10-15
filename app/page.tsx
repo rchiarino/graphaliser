@@ -31,7 +31,7 @@ export default function Home() {
 
   const [code, setText] = useState(storedEditorValue!);
 
-  const toggleEditor = () => {
+  const toggleEditor = async () => {
     setEditorVisible((state) => !state);
   };
 
