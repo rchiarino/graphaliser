@@ -34,7 +34,10 @@ function NodeContextMenu({ node, top, left, right, bottom }: ContextMenuProps) {
         <div className="h-px bg-border my-1" />
 
         <DialogTrigger asChild>
-          <button className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground w-full disabled:text-muted-foreground disabled:hover:bg-popover disabled:hover:text-muted-foreground">
+          <button
+            disabled
+            className="relative flex cursor-pointer select-none items-center rounded-sm px-2 py-1.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground w-full disabled:text-muted-foreground disabled:hover:bg-popover disabled:hover:text-muted-foreground disabled:cursor-default"
+          >
             <Edit className="mr-2 h-4 w-4" />
             Edit
           </button>
