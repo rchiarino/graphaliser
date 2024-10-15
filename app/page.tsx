@@ -105,9 +105,7 @@ export default function Home() {
             <EditorView
               value={code}
               errors={codeErrors}
-              onChange={(value) => {
-                setText(value!);
-              }}
+              onChange={(value) => setText(value!)}
             />
             <EditorControls
               code={code}
@@ -118,7 +116,12 @@ export default function Home() {
         )}
         <div className={editorVisible ? "col-span-2" : "col-span-full"}>
           <ReactFlowProvider>
-            <LayoutFlow setCurrentCode={setText} currentCode={code} graph={graphConfig} editor={EditorConfig} />
+            <LayoutFlow
+              setCurrentCode={() => {}}
+              currentCode={code}
+              graph={graphConfig}
+              editor={EditorConfig}
+            />
           </ReactFlowProvider>
         </div>
       </section>

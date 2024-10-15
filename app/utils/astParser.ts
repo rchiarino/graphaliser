@@ -116,14 +116,14 @@ function generateCodeFromAST(ast: ASTNode, indent: string = ""): string {
         return generateCodeFromAST(ast.children[0], indent);
       }
       return `${indent}BEGIN\n${ast.children
-        .map((child) => generateCodeFromAST(child, indent + "  "))
+        .map((child) => generateCodeFromAST(child, indent + "    "))
         .join("\n")}\n${indent}END`;
     case NodeType.PAR:
       if (ast.children.length === 1) {
         return generateCodeFromAST(ast.children[0], indent);
       }
       return `${indent}COBEGIN\n${ast.children
-        .map((child) => generateCodeFromAST(child, indent + "  "))
+        .map((child) => generateCodeFromAST(child, indent + "       "))
         .join("\n")}\n${indent}COEND`;
     default:
       throw new Error(`Unexpected node type: ${ast}`);
