@@ -284,7 +284,7 @@ function LayoutFlow({
       }
       {
         // @ts-expect-error - the object is not null is a valid value
-        panelMenu && <ViewContexMenu {...panelMenu} />
+        panelMenu && <ViewContexMenu onPanelClick={onPaneClick} {...panelMenu} />
       }
       <Background />
     </ReactFlow>
