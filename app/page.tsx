@@ -110,6 +110,7 @@ export default function Home() {
             <EditorControls
               code={code}
               defaultCode={defaultValue}
+              setCode={setText}
               setStoredEditorValue={setText}
             />
           </div>
