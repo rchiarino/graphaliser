@@ -1,8 +1,8 @@
 export const defaultValue = `BEGIN
     A
     COBEGIN
-            B
-            C
+           B
+           C
     COEND
     D
 END`;

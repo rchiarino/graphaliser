@@ -2,14 +2,18 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Check, Copy, RotateCcw, TextQuote } from "lucide-react";
+import { parseProgram } from "../utils/editorToAST";
+import { generateCodeFromAST } from "../utils/astParser";
 
 function EditorControls({
   code,
   defaultCode,
+  setCode,
   setStoredEditorValue,
 }: {
   code: string;
   defaultCode: string;
+  setCode: (value: string) => void;
   setStoredEditorValue: (value: string) => void;
 }) {
   const [isCopied, setIsCopied] = useState(false);
@@ -23,12 +27,16 @@ function EditorControls({
     }
   };
 
+  const handleFormatCode = () => {
+    setCode(generateCodeFromAST(parseProgram(code)));
+  };
+
   return (
     <div className="absolute bottom-4 flex justify-center items-center w-1/3">
       <Button
         variant="outline"
         className="mr-4 transition-all duration-300 ease-in-out"
-        disabled
+        onClick={handleFormatCode}
       >
         <TextQuote className="mr-2 h-4 w-4" />
         Format
