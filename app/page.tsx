@@ -118,7 +118,9 @@ export default function Home() {
         <div className={editorVisible ? "col-span-2" : "col-span-full"}>
           <ReactFlowProvider>
             <LayoutFlow
-              setCurrentCode={() => {}}
+              setCurrentCode={(code) => {
+                console.log(code);
+              }}
               currentCode={code}
               graph={graphConfig}
               editor={EditorConfig}
