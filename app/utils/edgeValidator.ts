@@ -1,57 +1,13 @@
 import { Node, Edge } from "@xyflow/react";
 import { getOutgoers } from "@xyflow/react";
 
-function findRootNode(nodes: Node[], edges: Edge[]): Node | undefined {
-  return nodes.find((node) => {
-    return !edges.some((edge) => edge.target === node.id);
-  });
-}
 
-function findEndNode(nodes: Node[], edges: Edge[]): Node | undefined {
-  return nodes.find((node) => {
-    return !edges.some((edge) => edge.source === node.id);
-  });
-}
-
-function getAllPaths(
-  start: Node,
-  nodes: Node[],
-  edges: Edge[],
-  currentPath: string[] = [],
-  allPaths: string[][] = [],
-  visited: Set<string> = new Set()
-) {
-  currentPath.push(start.id);
-  visited.add(start.id);
-
-  const outgoers = getOutgoers(start, nodes, edges);
-
-  if (outgoers.length === 0) {
-    allPaths.push([...currentPath]);
-  } else {
-    for (const outgoer of outgoers) {
-      if (!visited.has(outgoer.id)) {
-        getAllPaths(outgoer, nodes, edges, currentPath, allPaths, visited);
-      }
-    }
-  }
-
-  currentPath.pop();
-  visited.delete(start.id);
-  return allPaths;
-}
 
 export function isValidNewEdge(
   nodes: Node[],
   existingEdges: Edge[],
   newEdge: Edge
 ): { isValid: boolean; message?: string; reason?: string } {
-  const rootNode = findRootNode(nodes, existingEdges);
-  if (!rootNode) {
-    return { isValid: false, message: "No valid root node found" };
-  }
-
-  const endNode = findEndNode(nodes, existingEdges);
   const tempEdges = [...existingEdges, newEdge];
 
   // Basic cycle detection
@@ -93,41 +49,28 @@ export function isValidNewEdge(
     };
   }
 
-  // Get all nodes that are part of the COBEGIN/COEND structure
-  const allPaths = rootNode ? getAllPaths(rootNode, nodes, existingEdges) : [];
-  const allNodesInStructure = new Set(allPaths.flat());
+  // Prevent N-shape: nodes feeding into convergence points cannot branch elsewhere
+  const sourceOutgoingEdgesInTemp = tempEdges.filter((edge) => edge.source === newEdge.source);
 
-  // If the target is not the current end node and not in the structure, it's invalid
-  if (
-    endNode &&
-    newEdge.target !== endNode.id &&
-    !allNodesInStructure.has(newEdge.target)
-  ) {
+  // Check if source feeds into any convergence point (node with 2+ incoming in temp)
+  const feedsIntoConvergencePoint = sourceOutgoingEdgesInTemp.some(outgoing => {
+    const targetIncoming = tempEdges.filter(edge => edge.target === outgoing.target);
+    return targetIncoming.length >= 2;
+  });
+
+  if (feedsIntoConvergencePoint && sourceOutgoingEdgesInTemp.length > 1) {
     return {
       isValid: false,
-      message: "Edge creates a diverging path.",
-      reason: `All paths must converge to node ${endNode.id}.`,
+      message: "Invalid concurrent structure.",
+      reason: `Node ${newEdge.source} feeds into a convergence point and cannot branch to multiple successors.`,
     };
   }
 
-  // Check if source has other outgoing edges to a different target
-  const sourceOutgoers = getOutgoers(
-    nodes.find((n) => n.id === newEdge.source)!,
-    nodes,
-    existingEdges
-  );
+  // Skip structural validation for interactive editing
+  // Focus on preventing invalid concurrent programming constructs
 
-  const hasOtherEndTarget = sourceOutgoers.some(
-    (outgoer) => outgoer.id !== newEdge.target && outgoer.id !== endNode?.id
-  );
-
-  if (hasOtherEndTarget) {
-    return {
-      isValid: false,
-      message: "Source node already has a different target.",
-      reason: `Node ${newEdge.source} already connects to a different end point.`,
-    };
-  }
+  // Removed: Check if source has other outgoing edges to a different target
+  // This was blocking valid parallel branching during UI construction
 
   return { isValid: true };
 }

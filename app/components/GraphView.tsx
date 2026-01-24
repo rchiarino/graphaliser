@@ -191,7 +191,6 @@ function LayoutFlow({
       if (isValid) {
         setEdges((eds) => addEdge(newEdge, eds));
       } else {
-        console.warn(reason);
         toast.warning(message, { description: reason });
       }
     },
@@ -282,27 +281,40 @@ function LayoutFlow({
 
         const updatedEdges = [...edges];
 
+        let newEdge: Edge;
         if (isParallel) {
-          const newEdge = {
+          newEdge = {
             id: `e${connectionState.fromNode!.id}-${id}`,
             source: connectionState.fromNode!.id,
             target: id,
             markerEnd: { type: MarkerType.Arrow },
           };
-          updatedEdges.push(newEdge);
         } else {
           const lastNodeInSequence = findLastNodeInSequence(
             connectionState.fromNode!.id,
             edges
           );
-          const newEdge = {
+          newEdge = {
             id: `e${lastNodeInSequence}-${id}`,
             source: lastNodeInSequence,
             target: id,
             markerEnd: { type: MarkerType.Arrow },
           };
-          updatedEdges.push(newEdge);
         }
+
+        // Validate the edge to prevent N-shapes in programmatic node additions
+        const { isValid, message, reason } = isValidNewEdge(
+          updatedNodes,
+          edges, // Use original edges for validation
+          newEdge
+        );
+
+        if (!isValid) {
+          toast.warning(message, { description: reason });
+          return; // Don't create the node or edge
+        }
+
+        updatedEdges.push(newEdge);
 
         const currentAST = parseProgram(currentCode);
         const updatedAST = addNodeToAST(
